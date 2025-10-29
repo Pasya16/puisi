@@ -198,6 +198,37 @@
       }
     }
     
+    /* Audio Player Styling */
+    #audioControl {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(26, 26, 26, 0.05);
+      border: 1px solid rgba(26, 26, 26, 0.1);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      z-index: 10;
+      opacity: 0;
+      animation: fadeIn 0.5s ease-out 2s forwards;
+    }
+    
+    #audioControl:hover {
+      background: rgba(26, 26, 26, 0.1);
+      transform: scale(1.1);
+    }
+    
+    #audioControl svg {
+      width: 18px;
+      height: 18px;
+      fill: #2a2a2a;
+    }
+    
     p {
       margin-bottom: 28px;
       font-size: 1.05em;
@@ -283,9 +314,7 @@
   </style>
 </head>
 <body>
-  <audio autoplay loop>
-  <source src="https://raw.githubusercontent.com/pasya16/puisi/main/afgan.mp3" type="audio/mpeg">
-</audio>
+  <!-- Bunga SVG pojok kiri atas -->
   <svg class="flower-top-left" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
     <g fill="#000000">
       <ellipse cx="100" cy="60" rx="25" ry="45" transform="rotate(0 100 100)"/>
@@ -298,6 +327,8 @@
       <ellipse cx="60" cy="140" rx="15" ry="35" transform="rotate(-45 60 140)"/>
     </g>
   </svg>
+  
+  <!-- Bunga SVG pojok kanan bawah -->
   <svg class="flower-bottom-right" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
     <g fill="#000000">
       <ellipse cx="100" cy="55" rx="30" ry="50" transform="rotate(0 100 100)"/>
@@ -312,6 +343,8 @@
       <ellipse cx="100" cy="160" rx="12" ry="30" transform="rotate(0 100 160)"/>
     </g>
   </svg>
+  
+  <!-- Bunga kecil pojok kanan atas -->
   <svg class="flower-top-right" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
     <g fill="#000000">
       <ellipse cx="100" cy="65" rx="20" ry="40" transform="rotate(0 100 100)"/>
@@ -321,6 +354,8 @@
       <circle cx="100" cy="100" r="15"/>
     </g>
   </svg>
+  
+  <!-- Bunga kecil pojok kiri bawah -->
   <svg class="flower-bottom-left" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
     <g fill="#000000">
       <ellipse cx="100" cy="70" rx="18" ry="35" transform="rotate(0 100 100)"/>
@@ -331,6 +366,8 @@
       <circle cx="100" cy="100" r="12"/>
     </g>
   </svg>
+  
+  <!-- Bunga tengah atas -->
   <svg class="flower-center-top" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
     <g fill="#000000">
       <ellipse cx="100" cy="70" rx="22" ry="38" transform="rotate(0 100 100)"/>
@@ -342,14 +379,19 @@
       <circle cx="100" cy="100" r="14"/>
     </g>
   </svg>
+  
+  <!-- Ranting kiri -->
   <svg class="branch-left" viewBox="0 0 150 300" xmlns="http://www.w3.org/2000/svg">
     <g fill="none" stroke="#000000" stroke-width="2" stroke-linecap="round">
+      <!-- Batang utama -->
       <path d="M 10 0 Q 30 80 25 150 Q 20 220 30 300"/>
+      <!-- Ranting kecil -->
       <path d="M 25 50 Q 40 60 50 55"/>
       <path d="M 27 100 Q 45 110 55 105"/>
       <path d="M 24 150 Q 42 165 52 160"/>
       <path d="M 26 200 Q 44 215 54 210"/>
       <path d="M 28 250 Q 46 265 56 260"/>
+      <!-- Daun kecil -->
       <ellipse cx="52" cy="55" rx="8" ry="15" fill="#000000" opacity="0.8"/>
       <ellipse cx="57" cy="105" rx="7" ry="13" fill="#000000" opacity="0.8"/>
       <ellipse cx="54" cy="160" rx="9" ry="16" fill="#000000" opacity="0.8"/>
@@ -357,19 +399,25 @@
       <ellipse cx="58" cy="260" rx="7" ry="12" fill="#000000" opacity="0.8"/>
     </g>
   </svg>
+  
+  <!-- Ranting kanan -->
   <svg class="branch-right" viewBox="0 0 150 350" xmlns="http://www.w3.org/2000/svg">
     <g fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round">
+      <!-- Batang utama -->
       <path d="M 10 0 Q 35 100 28 180 Q 22 260 35 350"/>
+      <!-- Ranting kecil -->
       <path d="M 28 60 Q 48 72 60 68"/>
       <path d="M 30 120 Q 50 135 62 130"/>
       <path d="M 26 180 Q 46 200 58 195"/>
       <path d="M 28 240 Q 48 258 60 253"/>
       <path d="M 30 300 Q 50 318 62 313"/>
+      <!-- Daun -->
       <ellipse cx="62" cy="68" rx="10" ry="18" fill="#000000" opacity="0.8"/>
       <ellipse cx="64" cy="130" rx="9" ry="16" fill="#000000" opacity="0.8"/>
       <ellipse cx="60" cy="195" rx="11" ry="19" fill="#000000" opacity="0.8"/>
       <ellipse cx="62" cy="253" rx="9" ry="17" fill="#000000" opacity="0.8"/>
       <ellipse cx="64" cy="313" rx="10" ry="16" fill="#000000" opacity="0.8"/>
+      <!-- Bunga kecil di ranting -->
       <circle cx="62" cy="68" r="5" fill="#000000"/>
       <circle cx="64" cy="130" r="4" fill="#000000"/>
       <circle cx="62" cy="253" r="5" fill="#000000"/>
@@ -377,6 +425,16 @@
   </svg>
 
   <div class="container">
+    <!-- Audio Control Button -->
+    <button id="audioControl" aria-label="Play/Pause Music">
+      <svg id="playIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+      <svg id="pauseIcon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="display: none;">
+        <path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>
+      </svg>
+    </button>
+    
     <h1>Sinyal Tanpa Makna</h1>
     <p>Kita tak pernah jadi apa-apa,<br>
        tapi aku selalu menuju padamu.<br>
@@ -403,8 +461,30 @@
        Aku hanya ingin sedikit saja,<br>
        jadi alasan kecil di balik senyummu yang nyata.</p>
   </div>
+  
+  <script>
+    const audio = document.getElementById('bgMusic');
+    const audioControl = document.getElementById('audioControl');
+    const playIcon = document.getElementById('playIcon');
+    const pauseIcon = document.getElementById('pauseIcon');
+    
+    audioControl.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        playIcon.style.display = 'none';
+        pauseIcon.style.display = 'block';
+      } else {
+        audio.pause();
+        playIcon.style.display = 'block';
+        pauseIcon.style.display = 'none';
+      }
+    });
+    
+    // Try to autoplay
+    audio.play().catch(() => {
+      // Autoplay blocked, user needs to click
+      console.log('Autoplay blocked. Click the button to play music.');
+    });
+  </script>
 </body>
 </html>
-
-
-
