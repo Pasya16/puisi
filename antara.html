@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Belajar Menjauh</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e98d4 100%);
+      color: #f0f8ff;
+      font-family: 'Georgia', serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 100px 20px 60px 20px;
+      line-height: 1.8;
+      position: relative;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+    
+    /* Gelembung statis */
+    .bubble {
+      position: fixed;
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 50%;
+      opacity: 0.6;
+      box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+    
+    .bubble::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 10%;
+      width: 40%;
+      height: 40%;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+    }
+    
+    .bubble:nth-child(1) {
+      width: 80px;
+      height: 80px;
+      left: 10%;
+      top: 15%;
+    }
+    
+    .bubble:nth-child(2) {
+      width: 50px;
+      height: 50px;
+      left: 25%;
+      top: 70%;
+    }
+    
+    .bubble:nth-child(3) {
+      width: 100px;
+      height: 100px;
+      left: 40%;
+      top: 25%;
+    }
+    
+    .bubble:nth-child(4) {
+      width: 60px;
+      height: 60px;
+      left: 55%;
+      top: 60%;
+    }
+    
+    .bubble:nth-child(5) {
+      width: 90px;
+      height: 90px;
+      left: 70%;
+      top: 35%;
+    }
+    
+    .bubble:nth-child(6) {
+      width: 70px;
+      height: 70px;
+      right: 5%;
+      top: 75%;
+    }
+    
+    .bubble:nth-child(7) {
+      width: 45px;
+      height: 45px;
+      left: 15%;
+      top: 50%;
+    }
+    
+    .bubble:nth-child(8) {
+      width: 65px;
+      height: 65px;
+      left: 35%;
+      top: 80%;
+    }
+    
+    .bubble:nth-child(9) {
+      width: 55px;
+      height: 55px;
+      left: 50%;
+      top: 10%;
+    }
+    
+    .bubble:nth-child(10) {
+      width: 75px;
+      height: 75px;
+      right: 20%;
+      top: 55%;
+    }
+    
+    .bubble:nth-child(11) {
+      width: 85px;
+      height: 85px;
+      right: 10%;
+      top: 20%;
+    }
+    
+    .bubble:nth-child(12) {
+      width: 40px;
+      height: 40px;
+      left: 5%;
+      top: 85%;
+    }
+    
+    /* Gelombang air di bawah */
+    .wave {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 150px;
+      z-index: 0;
+    }
+    
+    .wave svg {
+      width: 100%;
+      height: 100%;
+    }
+    
+    .wave-1 {
+      opacity: 0.3;
+      animation: wave-animation 15s linear infinite;
+    }
+    
+    .wave-2 {
+      opacity: 0.2;
+      animation: wave-animation 10s linear infinite reverse;
+    }
+    
+    @keyframes wave-animation {
+      0% {
+        transform: translateX(0);
+      }
+      100% {
+        transform: translateX(-50%);
+      }
+    }
+    
+    .container {
+      max-width: 650px;
+      background: rgba(100, 150, 220, 0.25);
+      padding: 60px 50px;
+      border-radius: 3px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+      position: relative;
+      z-index: 1;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      opacity: 0;
+      animation: fadeInUp 1s ease-out 0.2s forwards;
+      color: #f0f8ff;
+      backdrop-filter: blur(10px);
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2em;
+      color: #ffffff;
+      font-weight: 400;
+      letter-spacing: 2px;
+      position: relative;
+      padding-bottom: 20px;
+      opacity: 0;
+      animation: fadeIn 0.8s ease-out 0.6s forwards;
+    }
+    
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffffff, rgba(255, 255, 255, 0.5));
+      animation: expandLine 0.8s ease-out 1s forwards;
+    }
+    
+    @keyframes expandLine {
+      to {
+        width: 60px;
+      }
+    }
+    
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
+    
+    p {
+      margin-bottom: 28px;
+      font-size: 1.05em;
+      color: #e8f4f8;
+      text-align: left;
+      line-height: 1.9;
+      opacity: 0;
+      transform: translateX(-20px);
+      animation: slideInText 0.6s ease-out forwards;
+      transition: all 0.3s ease;
+      padding-left: 5px;
+      border-left: 2px solid transparent;
+    }
+    
+    p:hover {
+      padding-left: 15px;
+      border-left-color: #ffffff;
+    }
+    
+    p:nth-of-type(1) { animation-delay: 0.8s; }
+    p:nth-of-type(2) { animation-delay: 1s; }
+    p:nth-of-type(3) { animation-delay: 1.2s; }
+    p:nth-of-type(4) { animation-delay: 1.4s; }
+    p:nth-of-type(5) { animation-delay: 1.6s; }
+    
+    @keyframes slideInText {
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    p:last-of-type {
+      margin-bottom: 0;
+    }
+    
+    br {
+      display: block;
+      margin: 5px 0;
+      content: "";
+    }
+    
+    @media (max-width: 768px) {
+      body {
+        padding: 40px 20px;
+      }
+      
+      .container {
+        padding: 40px 30px;
+      }
+      
+      h1 {
+        font-size: 1.6em;
+      }
+      
+      p {
+        font-size: 1em;
+      }
+      
+      .bubble {
+        width: 50px !important;
+        height: 50px !important;
+      }
+      
+      .wave {
+        height: 100px;
+      }
+    }
+    
+    .audio-player {
+        position: fixed;
+        top: 20px;
+        right: 30px;
+        z-index: 10;
+    }  
+
+    .audio-player audio {
+        width: 140px;
+        height: 25px;
+        opacity: 0.85;
+    }
+
+    .back-icon {
+  position: fixed;
+  top: 20px;
+  left: 25px;
+  width: 40px;
+  height: 40px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: rgba(0, 0, 0, 0.35);
+  color: rgba(255, 255, 255, 0.88);
+
+  border-radius: 50%;
+  text-decoration: none;
+  font-size: 22px;
+  line-height: 1;
+
+  backdrop-filter: blur(5px);
+
+  /* Border fix — tetap sama di normal & hover */
+  border: 1px solid rgba(255, 255, 255, 0.18);
+
+  transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+  z-index: 20;
+}
+
+.back-icon:hover {
+  background: rgba(255, 255, 255, 0.25);
+  color: black;
+  transform: scale(1.08);
+}
+
+  </style>
+</head>
+<body>
+  <<a href="index.html" class="back-icon">←</a>
+  <div class="audio-player">
+  <audio autoplay loop controls>
+    <source src="https://raw.githubusercontent.com/pasya16/puisi/main/WeCant.mp3" type="audio/mpeg">
+  </audio>
+</div>
+
+  <!-- Gelembung-gelembung -->
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+  <div class="bubble"></div>
+
+  <!-- Gelombang air -->
+  <div class="wave">
+    <svg viewBox="0 0 1200 150" preserveAspectRatio="none">
+      <path class="wave-1" d="M0,50 Q300,100 600,50 T1200,50 V150 H0 Z" fill="rgba(255,255,255,0.1)"/>
+    </svg>
+  </div>
+  <div class="wave" style="bottom: -20px;">
+    <svg viewBox="0 0 1200 150" preserveAspectRatio="none">
+      <path class="wave-2" d="M0,70 Q300,20 600,70 T1200,70 V150 H0 Z" fill="rgba(255,255,255,0.05)"/>
+    </svg>
+  </div>
+
+  <div class="container">
+    <h1>Antara Kita yang Tak Mungkin</h1>
+    
+    <p>Hari ini kucoba untuk menjauh darimu, <br>
+        menata sikap seperti yang seharusnya memang ada, <br>
+        seperti batas yang memang kita sepakati tanpa kata. <br>
+        Tapi mengapa? Mengapa justru hatiku yang terasa sesak?</p>
+
+    <p>Kau bertanya, dan aku menjawab secukupnya, <br>
+        tak lebih, tak kurang—hanya seperlunya saja. <br>
+        Pedih rasanya menahan diri,<br> 
+        namun kurasa inilah jalan yang paling masuk akal,<br>
+        jalan yang harus kupaksa untuk kutempuh.</p>
+
+    <p>Aku sedang belajar meredakan hati yang terbiasa berlari padamu. <br>
+        Belajar melepaskan sosokmu perlahan, <br>
+        meski jejakmu masih tertinggal di sela jalanku. </p>
+
+    <p>Perlahan aku mencoba memahami diriku sendiri, <br>
+        bertanya dalam diam, apakah sendiri lebih baik <br>
+        daripada berharap yang tak pernah jadi nyata? <br>
+        Apakah jarak adalah jawaban yang selama ini kutolak <br>
+        karena aku tak ingin kehilanganmu.</p>
+
+    <p>Karena jujur, aku tak mampu menjadi sekadar teman di sisimu. <br>
+        Perasaan yang bengkok ini selalu kembali, <br>
+        menyusup di antara kita, datang seperti ombak yang berhamburan. </p>
+
+    <p>Mungkin menjauh adalah luka yang perlu kurasakan, <br>
+        agar akhirnya aku bisa sembuh. <br>
+        Sembuh dari rasa yang tak pernah kau beri <br> 
+        dan tak pernah sanggup untuk ku hentikan.</p>
+  </div>
+</body>
+</html>

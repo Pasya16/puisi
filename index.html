@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Puisi</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Georgia', serif;
+      background: #fdfbf7;
+      color: #2d2d2d;
+      line-height: 1.6;
+    }
+
+    /* Navbar */
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(253, 251, 247, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid #e8d5c4;
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 1.1em;
+      font-weight: 600;
+      color: #c17767;
+      text-decoration: none;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 35px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #8b7d6b;
+      text-decoration: none;
+      font-size: 0.9em;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover,
+    .nav-links a.active {
+      color: #c17767;
+    }
+
+    .menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.5em;
+      cursor: pointer;
+      color: #c17767;
+    }
+
+    /* Hero */
+    .hero {
+      padding: 140px 40px 80px;
+      max-width: 900px;
+      margin: 0 auto;
+      background: linear-gradient(180deg, 
+        rgba(241, 227, 217, 0.3) 0%, 
+        rgba(253, 251, 247, 0) 100%);
+      border-radius: 0 0 50px 50px;
+    }
+
+    h1 {
+      font-size: 3.5em;
+      font-weight: 400;
+      margin-bottom: 15px;
+      color: #2d2d2d;
+      position: relative;
+      display: inline-block;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 0;
+      width: 80px;
+      height: 3px;
+      background: linear-gradient(90deg, #e8b4a8 0%, #d4a5c4 100%);
+      border-radius: 2px;
+    }
+
+    .subtitle {
+      font-size: 1.1em;
+      color: #8b7d6b;
+      margin-top: 30px;
+    }
+
+    /* Poems */
+    .poems {
+      max-width: 1200px;
+      margin: 60px auto 0;
+      padding: 0 40px 80px;
+    }
+
+    .section-label {
+      font-size: 0.85em;
+      color: #b8a89a;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-bottom: 30px;
+      font-family: Arial, sans-serif;
+    }
+
+    .poem-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+
+    .poem-item {
+      background: #fff;
+      border: 1px solid #f0e6dc;
+      border-radius: 12px;
+      padding: 25px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(193, 119, 103, 0.04);
+    }
+
+    .poem-item:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(193, 119, 103, 0.12);
+      border-color: #e8b4a8;
+      background: linear-gradient(135deg, #fff 0%, #fef9f6 100%);
+    }
+
+    .poem-item a {
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+
+    .poem-meta {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      font-size: 0.85em;
+      color: #b8a89a;
+      margin-bottom: 15px;
+    }
+
+    .poem-number {
+      background: linear-gradient(135deg, #f1e3d9 0%, #e8d5c4 100%);
+      color: #8b7d6b;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-family: Arial, sans-serif;
+    }
+
+    .poem-item h2 {
+      font-size: 1.5em;
+      font-weight: 400;
+      margin-bottom: 10px;
+      color: #2d2d2d;
+      transition: color 0.2s;
+    }
+
+    .poem-item:hover h2 {
+      color: #c17767;
+    }
+
+    .poem-excerpt {
+      color: #6b6b6b;
+      font-size: 0.9em;
+      line-height: 1.6;
+      font-style: italic;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .read-more {
+      display: inline-block;
+      margin-top: 15px;
+      color: #c17767;
+      font-size: 0.85em;
+      font-family: Arial, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .poem-item:hover .read-more {
+      opacity: 1;
+    }
+
+    .read-more::after {
+      content: ' →';
+    }
+
+    /* Decorative elements */
+    .deco-circle {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .deco-1 {
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(232, 180, 168, 0.15) 0%, transparent 70%);
+      top: 10%;
+      right: -100px;
+    }
+
+    .deco-2 {
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(212, 165, 196, 0.1) 0%, transparent 70%);
+      bottom: 20%;
+      left: -150px;
+    }
+
+    /* Footer */
+    footer {
+      background: linear-gradient(180deg, 
+        rgba(253, 251, 247, 0) 0%, 
+        rgba(241, 227, 217, 0.3) 100%);
+      border-top: 1px solid #f0e6dc;
+      padding: 50px 40px;
+      text-align: center;
+      color: #b8a89a;
+      font-size: 0.9em;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      nav {
+        padding: 15px 20px;
+      }
+
+      .nav-links {
+        position: fixed;
+        top: 60px;
+        left: -100%;
+        width: 100%;
+        height: calc(100vh - 60px);
+        background: rgba(253, 251, 247, 0.98);
+        backdrop-filter: blur(10px);
+        flex-direction: column;
+        padding: 40px;
+        gap: 25px;
+        transition: left 0.3s;
+        border-top: 1px solid #e8d5c4;
+      }
+
+      .nav-links.active {
+        left: 0;
+      }
+
+      .menu-btn {
+        display: block;
+      }
+
+      .hero {
+        padding: 100px 20px 60px;
+        border-radius: 0 0 30px 30px;
+      }
+
+      h1 {
+        font-size: 2.5em;
+      }
+
+      .poems {
+        padding: 0 20px 60px;
+      }
+
+      .poem-list {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 15px;
+      }
+
+      .poem-item {
+        padding: 20px;
+      }
+
+      .poem-item h2 {
+        font-size: 1.3em;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="deco-circle deco-1"></div>
+  <div class="deco-circle deco-2"></div>
+
+  <nav>
+    <a href="#" class="logo">Puisi</a>
+    <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    <ul class="nav-links">
+      <li><a href="#" class="active">Beranda</a></li>
+      <li><a href="#koleksi">Koleksi</a></li>
+      <li><a href="#tentang">Tentang</a></li>
+    </ul>
+  </nav>
+
+  <div class="hero">
+    <h1>Kumpulan Puisi</h1>
+    <p class="subtitle">
+      Di sini kusimpan segala sesuatu yang tak pernah sempat kusampaikan padamu.<br>
+      Rasa yang kupendam dalam diam, harap yang tumbuh tanpa cinta.<br>
+      Semoga lewat tulisan, aku bisa belajar merelakanmu meski perlahan menyakitiku.</p>
+  </div>
+
+  <div class="poems" id="koleksi">
+    <div class="section-label">Karya Terbaru</div>
+    <div class="poem-list">
+      <div class="poem-item">
+        <a href="sinyal.html">
+          <div class="poem-meta">
+            <span class="poem-number">01</span>
+            <span>2025</span>
+          </div>
+          <h2>Sinyal Tanpa Makna</h2>
+          <p class="poem-excerpt">Harapan yang tumbuh dari tanda palsu yang kau beri.</p>
+          <span class="read-more">Baca</span>
+        </a>
+      </div>
+
+      <div class="poem-item">
+        <a href="pelukan.html">
+          <div class="poem-meta">
+            <span class="poem-number">02</span>
+            <span>2025</span>
+          </div>
+          <h2>Pelukan yang Menjerat</h2>
+          <p class="poem-excerpt">Yang ku pikir adalah rumah ternyata duri yang menusuk.</p>
+          <span class="read-more">Baca</span>
+        </a>
+      </div>
+
+      <div class="poem-item">
+        <a href="antara.html">
+          <div class="poem-meta">
+            <span class="poem-number">03</span>
+            <span>2025</span>
+          </div>
+          <h2>Antara Kita yang Tak Mungkin</h2>
+          <p class="poem-excerpt">Belajar melepaskanmu yang tak pernah benar-benar kugenggam.</p>
+          <span class="read-more">Baca</span>
+        </a>
+      </div>
+
+      <div class="poem-item">
+        <a href="akhir.html">
+          <div class="poem-meta">
+            <span class="poem-number">04</span>
+            <span>2025</span>
+          </div>
+          <h2>Akhirnya Mati Rasa</h2>
+          <p class="poem-excerpt">Akhir yang tak pernah ku bayangkan, namun lebih baik dari pada berharap.</p>
+          <span class="read-more">Baca</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2025 — Puisyaa</p>
+  </footer>
+
+  <script>
+    function toggleMenu() {
+      document.querySelector('.nav-links').classList.toggle('active');
+    }
+
+    document.querySelectorAll('.nav-links a').forEach(link => {
+      link.addEventListener('click', () => {
+        document.querySelector('.nav-links').classList.remove('active');
+      });
+    });
+  </script>
+</body>
+</html>
