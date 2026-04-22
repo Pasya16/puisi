@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perjalanan yang Asing</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: linear-gradient(135deg, #2c1503 0%, #5c2d0e 50%, #a0611a 100%);
+      color: #fdf3e3;
+      font-family: 'Georgia', serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 100px 20px 60px 20px;
+      line-height: 1.8;
+      position: relative;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    /* Daun jatuh pakai CSS shape */
+    .leaf {
+      position: fixed;
+      width: 12px;
+      height: 12px;
+      opacity: 0;
+      border-radius: 0 80% 0 80%;
+      animation: fallLeaf linear infinite;
+      top: -20px;
+    }
+
+    .leaf:nth-child(1)  { left: 8%;   width: 10px; height: 10px; background: #c0451a; animation-duration: 12s; animation-delay: 0s; }
+    .leaf:nth-child(2)  { left: 18%;  width: 14px; height: 14px; background: #d4780a; animation-duration: 17s; animation-delay: 3s; }
+    .leaf:nth-child(3)  { left: 30%;  width: 9px;  height: 9px;  background: #8b2500; animation-duration: 14s; animation-delay: 6s; }
+    .leaf:nth-child(4)  { left: 42%;  width: 13px; height: 13px; background: #c0451a; animation-duration: 19s; animation-delay: 1s; }
+    .leaf:nth-child(5)  { left: 55%;  width: 11px; height: 11px; background: #d4960a; animation-duration: 13s; animation-delay: 8s; }
+    .leaf:nth-child(6)  { left: 65%;  width: 15px; height: 15px; background: #8b2500; animation-duration: 16s; animation-delay: 4s; }
+    .leaf:nth-child(7)  { left: 75%;  width: 10px; height: 10px; background: #d4780a; animation-duration: 20s; animation-delay: 2s; }
+    .leaf:nth-child(8)  { left: 85%;  width: 12px; height: 12px; background: #c0451a; animation-duration: 15s; animation-delay: 9s; }
+    .leaf:nth-child(9)  { left: 22%;  width: 8px;  height: 8px;  background: #d4960a; animation-duration: 18s; animation-delay: 11s; }
+    .leaf:nth-child(10) { left: 50%;  width: 14px; height: 14px; background: #8b2500; animation-duration: 11s; animation-delay: 5s; }
+    .leaf:nth-child(11) { left: 92%;  width: 9px;  height: 9px;  background: #c0451a; animation-duration: 21s; animation-delay: 7s; }
+    .leaf:nth-child(12) { left: 3%;   width: 13px; height: 13px; background: #d4780a; animation-duration: 14s; animation-delay: 13s; }
+
+    @keyframes fallLeaf {
+      0%   { opacity: 0; transform: translateY(0) rotate(0deg) translateX(0); top: -20px; }
+      8%   { opacity: 0.85; }
+      45%  { transform: translateY(45vh) rotate(160deg) translateX(25px); }
+      88%  { opacity: 0.5; }
+      100% { opacity: 0; transform: translateY(105vh) rotate(320deg) translateX(-15px); }
+    }
+
+    .container {
+      max-width: 650px;
+      background: rgba(80, 35, 10, 0.3);
+      padding: 60px 50px;
+      border-radius: 3px;
+      box-shadow: 0 8px 40px rgba(0, 0, 0, 0.35);
+      position: relative;
+      z-index: 1;
+      border: 1px solid rgba(255, 190, 90, 0.3);
+      opacity: 0;
+      animation: fadeInUp 1s ease-out 0.2s forwards;
+      color: #fdf3e3;
+      backdrop-filter: blur(10px);
+    }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 2em;
+      color: #ffffff;
+      font-weight: 400;
+      letter-spacing: 2px;
+      position: relative;
+      padding-bottom: 20px;
+      opacity: 0;
+      animation: fadeIn 0.8s ease-out 0.6s forwards;
+    }
+
+    h1::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #ffffff, rgba(255, 255, 255, 0.5));
+      animation: expandLine 0.8s ease-out 1s forwards;
+    }
+
+    @keyframes expandLine {
+      to { width: 60px; }
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    p {
+      margin-bottom: 28px;
+      font-size: 1.05em;
+      color: #f5e6cc;
+      text-align: left;
+      line-height: 1.9;
+      opacity: 0;
+      transform: translateX(-20px);
+      animation: slideInText 0.6s ease-out forwards;
+      transition: all 0.3s ease;
+      padding-left: 5px;
+      border-left: 2px solid transparent;
+    }
+
+    p:hover {
+      padding-left: 15px;
+      border-left-color: #ffffff;
+    }
+
+    p:nth-of-type(1) { animation-delay: 0.8s; }
+    p:nth-of-type(2) { animation-delay: 1.0s; }
+    p:nth-of-type(3) { animation-delay: 1.2s; }
+    p:nth-of-type(4) { animation-delay: 1.4s; }
+    p:nth-of-type(5) { animation-delay: 1.6s; }
+    p:nth-of-type(6) { animation-delay: 1.8s; }
+    p:nth-of-type(7) { animation-delay: 2.0s; }
+
+    @keyframes slideInText {
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    p:last-of-type { margin-bottom: 0; }
+
+    br {
+      display: block;
+      margin: 5px 0;
+      content: "";
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 40px 20px; }
+      .container { padding: 40px 30px; }
+      h1 { font-size: 1.6em; }
+      p  { font-size: 1em; }
+    }
+
+    .audio-player {
+      position: fixed;
+      top: 20px;
+      right: 30px;
+      z-index: 10;
+    }
+
+    .audio-player audio {
+      width: 140px;
+      height: 25px;
+      opacity: 0.85;
+    }
+
+    .back-icon {
+      position: fixed;
+      top: 20px;
+      left: 25px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.35);
+      color: rgba(255, 255, 255, 0.88);
+      border-radius: 50%;
+      text-decoration: none;
+      font-size: 22px;
+      line-height: 1;
+      backdrop-filter: blur(5px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      transition: background 0.25s ease, color 0.25s ease, transform 0.25s ease;
+      z-index: 20;
+    }
+
+    .back-icon:hover {
+      background: rgba(255, 255, 255, 0.25);
+      color: black;
+      transform: scale(1.08);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Daun jatuh -->
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+  <div class="leaf"></div>
+
+  <a href="index.html" class="back-icon">←</a>
+  <div class="audio-player">
+    <audio autoplay loop controls>
+      <source src="https://raw.githubusercontent.com/pasya16/puisi/main/WeCant.mp3" type="audio/mpeg">
+    </audio>
+  </div>
+
+  <div class="container">
+    <h1>Perjalanan yang Asing</h1>
+
+    <p>Perjalanan ini kini terasa asing, <br>
+      langkah-langkahku tak lagi seiring denganmu, <br>
+      hanya gema kenangan yang masih berisik di kepala, <br>
+      seakan enggan benar-benar pergi.</p>
+
+    <p>Aromamu masih tinggal di udara, <br>
+      menempel diam di setiap hela napasku, <br>
+      seperti sisa-sisa cerita yang belum selesai, <br>
+      yang tak pernah sempat kita tutup dengan baik.</p>
+
+    <p>Dulu kita berjalan di arah yang sama, <br>
+      saling menggenggam tanpa ragu, <br>
+      tapi kini jalan itu terbelah begitu saja, <br>
+      dan kau memilih pergi tanpa menoleh.</p>
+
+    <p>Kau memilihnya, dan aku kau tinggalkan, <br>
+      seolah semua yang kita punya tak pernah berarti, <br>
+      seolah aku hanya persinggahan sementara <br>
+      dalam perjalanan panjangmu.</p>
+
+    <p>Luka yang kau beri tak pernah benar-benar pulih, <br>
+      bukan karena aku tak ingin sembuh, <br>
+      tapi karena setiap kali aku mencoba melangkah, <br>
+      bayangmu selalu kembali menghadang.</p>
+
+    <p>Untuk apa aku berharap lebih jauh, <br>
+      jika sejak awal aku tak pernah kau pilih? <br>
+      Untuk apa aku terus meminta, <br>
+      jika jawabannya selalu bukan aku?</p>
+
+    <p>Mungkin aku memang bukan pemenang dalam kisah ini, <br>
+      bukan yang kau perjuangkan sampai akhir, <br>
+      tapi setidaknya aku pernah mencintai dengan utuh, <br>
+      meski akhirnya harus belajar merelakanmu sepenuhnya.</p>
+  </div>
+</body>
+</html>
