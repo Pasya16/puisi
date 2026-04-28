@@ -1,879 +1,822 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Puisyaa</title>
+
+  <!-- Preconnect + preload font agar tidak ada blank flash -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,600&family=Jost:wght@200;300;400&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,600&family=Jost:wght@200;300;400&display=swap">
+
   <style>
+    /* ─── RESET & VARS ───────────────────────────── */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
     :root {
-      --ink: #1a1208;
-      --ink-soft: #3d2e1e;
-      --cream: #faf6ef;
-      --parchment: #f2e8d9;
-      --rose: #c17767;
-      --rose-pale: #e8b4a8;
-      --gold: #b8893a;
-      --gold-pale: #e8d5b0;
-      --mist: rgba(250, 246, 239, 0.0);
+      --ink:       #2a3347;
+      --ink2:      #1e2a3e;
+      --cream:     #f0f4fa;
+      --parch:     #dde6f5;
+      --rose:      #7a9bbf;
+      --rose-pale: #a3bdd8;
+      --gold:      #7b9ec2;
+      --gold-dim:  rgba(123,158,194,0.15);
+      --serif:     'Cormorant Garamond', Georgia, serif;
+      --sans:      'Jost', system-ui, sans-serif;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    /* ─── LOADER ─────────────────────────────────────────── */
-    #loader {
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      background: var(--ink);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      gap: 28px;
-      transition: opacity 0.9s ease, visibility 0.9s ease;
-    }
-
-    #loader.hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    .loader-title {
-      font-family: 'Cormorant', serif;
-      font-size: 3em;
-      font-weight: 300;
-      font-style: italic;
-      color: var(--cream);
-      letter-spacing: 6px;
-      opacity: 0;
-      animation: loaderFadeIn 0.8s ease 0.3s forwards;
-    }
-
-    .loader-line {
-      width: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
-      animation: loaderLine 1.6s ease 0.6s forwards;
-    }
-
-    .loader-sub {
-      font-family: 'Jost', sans-serif;
-      font-size: 0.7em;
-      font-weight: 200;
-      letter-spacing: 5px;
-      text-transform: uppercase;
-      color: rgba(250,246,239,0.45);
-      opacity: 0;
-      animation: loaderFadeIn 0.8s ease 1s forwards;
-    }
-
-    .loader-dots {
-      display: flex;
-      gap: 8px;
-      opacity: 0;
-      animation: loaderFadeIn 0.5s ease 1.2s forwards;
-    }
-
-    .loader-dots span {
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--gold);
-      animation: dotPulse 1.2s ease-in-out infinite;
-    }
-    .loader-dots span:nth-child(2) { animation-delay: 0.2s; }
-    .loader-dots span:nth-child(3) { animation-delay: 0.4s; }
-
-    @keyframes loaderFadeIn {
-      to { opacity: 1; }
-    }
-    @keyframes loaderLine {
-      to { width: 120px; }
-    }
-    @keyframes dotPulse {
-      0%, 100% { opacity: 0.2; transform: scale(0.8); }
-      50% { opacity: 1; transform: scale(1.2); }
-    }
-
-    /* ─── CURSOR ─────────────────────────────────────────── */
-    .cursor {
-      position: fixed;
-      width: 8px;
-      height: 8px;
-      background: var(--rose);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9998;
-      transform: translate(-50%, -50%);
-      transition: transform 0.1s ease;
-      mix-blend-mode: multiply;
-    }
-
-    .cursor-ring {
-      position: fixed;
-      width: 32px;
-      height: 32px;
-      border: 1px solid rgba(193,119,103,0.4);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 9997;
-      transform: translate(-50%, -50%);
-      transition: all 0.18s ease;
-    }
-
-    body:has(.poem-item:hover) .cursor-ring {
-      width: 52px;
-      height: 52px;
-      border-color: var(--rose);
-    }
-
-    /* ─── BODY ───────────────────────────────────────────── */
     html { scroll-behavior: smooth; }
 
+    /* fallback background sama warna body — hilangkan blank putih */
+    html, body {
+      background: #f0f4fa;
+    }
+
     body {
-      font-family: 'Jost', sans-serif;
-      background: var(--cream);
+      font-family: var(--sans);
       color: var(--ink);
       line-height: 1.6;
       overflow-x: hidden;
       cursor: none;
     }
 
-    /* ─── GRAIN OVERLAY ──────────────────────────────────── */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-size: 180px 180px;
-      opacity: 0.025;
-      pointer-events: none;
-      z-index: 9000;
+    /* grain */
+    body::after {
+      content:'';
+      position:fixed; inset:0;
+      background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size:160px 160px;
+      opacity:0.025;
+      pointer-events:none;
+      z-index:9000;
     }
 
-    /* ─── NAV ────────────────────────────────────────────── */
+    /* ─── LOADER ─────────────────────────────────── */
+    #loader {
+      position:fixed; inset:0; z-index:9999;
+      background: #f0f4fa;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      gap:20px;
+    }
+
+    #loader.skip { display:none; }
+
+    #loader.out {
+      animation: wipeUp 1s cubic-bezier(0.76,0,0.24,1) forwards;
+    }
+
+    @keyframes wipeUp {
+      to { clip-path: inset(0 0 100% 0); }
+    }
+
+    .l-wordmark {
+      font-family: var(--serif);
+      font-size: clamp(2.5em, 6vw, 4em);
+      font-weight: 300;
+      font-style: italic;
+      letter-spacing: 8px;
+      color: var(--ink);
+      opacity: 0;
+      animation: lFade .7s ease .2s forwards;
+    }
+
+    .l-tagline {
+      font-size: .65em;
+      letter-spacing: 5px;
+      text-transform: uppercase;
+      color: rgba(123,158,194,.6);
+      opacity: 0;
+      animation: lFade .6s ease .7s forwards;
+    }
+
+    .l-track {
+      width: 160px; height: 1px;
+      background: rgba(123,158,194,.15);
+      position: relative; overflow:hidden;
+      margin-top:8px;
+    }
+
+    .l-track::after {
+      content:'';
+      position:absolute; top:0; left:-100%;
+      width:100%; height:100%;
+      background: linear-gradient(90deg, transparent, var(--rose), transparent);
+      animation: lScan 1.6s cubic-bezier(.4,0,.2,1) .4s forwards;
+    }
+
+    @keyframes lScan  { to { left:100%; } }
+    @keyframes lFade  { to { opacity:1; } }
+
+    /* ─── CURSOR ─────────────────────────────────── */
+    #cur {
+      position:fixed; width:6px; height:6px;
+      background:var(--rose); border-radius:50%;
+      pointer-events:none; z-index:8000;
+      transform:translate(-50%,-50%);
+      transition: width .2s, height .2s, background .3s;
+    }
+    #cur-r {
+      position:fixed; width:30px; height:30px;
+      border:1px solid rgba(123,158,194,.4);
+      border-radius:50%;
+      pointer-events:none; z-index:7999;
+      transform:translate(-50%,-50%);
+      transition: width .5s cubic-bezier(.22,1,.36,1),
+                  height .5s cubic-bezier(.22,1,.36,1),
+                  border-color .4s;
+    }
+    body.cur-hover #cur { width:12px; height:12px; background:var(--ink); }
+    body.cur-hover #cur-r { width:56px; height:56px; border-color:rgba(42,51,71,.3); }
+
+    /* ─── NAV ────────────────────────────────────── */
     nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      padding: 22px 50px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      z-index: 100;
-      transition: background 0.4s ease, box-shadow 0.4s ease;
+      position:fixed; top:0; left:0; right:0;
+      padding:26px 56px;
+      display:flex; justify-content:space-between; align-items:center;
+      z-index:500;
+      transition: padding .4s, background .4s, border-color .4s;
     }
 
-    nav.scrolled {
-      background: rgba(250,246,239,0.92);
-      backdrop-filter: blur(16px);
-      box-shadow: 0 1px 0 rgba(184,137,58,0.15);
+    nav.solid {
+      padding:16px 56px;
+      background:rgba(240,244,250,.92);
+      backdrop-filter:blur(18px);
+      border-bottom:1px solid rgba(123,158,194,.2);
     }
 
     .logo {
-      font-family: 'Cormorant', serif;
-      font-size: 1.3em;
-      font-style: italic;
-      font-weight: 400;
-      color: var(--ink);
-      text-decoration: none;
-      letter-spacing: 1px;
+      font-family:var(--serif);
+      font-size:1.3em; font-style:italic; font-weight:300;
+      color:var(--ink); text-decoration:none; letter-spacing:2px;
     }
 
-    .nav-links {
-      display: flex;
-      gap: 40px;
-      list-style: none;
-    }
+    .nav-links { display:flex; gap:40px; list-style:none; }
 
     .nav-links a {
-      font-family: 'Jost', sans-serif;
-      font-size: 0.75em;
-      font-weight: 300;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--ink-soft);
-      text-decoration: none;
-      position: relative;
-      transition: color 0.3s;
+      font-size:.7em; letter-spacing:3px; text-transform:uppercase;
+      color:rgba(42,51,71,.45); text-decoration:none;
+      position:relative; transition:color .3s;
     }
 
     .nav-links a::after {
-      content: '';
-      position: absolute;
-      bottom: -3px; left: 0;
-      width: 0; height: 1px;
-      background: var(--rose);
-      transition: width 0.3s ease;
+      content:''; position:absolute;
+      bottom:-4px; left:0;
+      width:0; height:1px;
+      background:var(--rose);
+      transition:width .4s ease;
     }
 
-    .nav-links a:hover { color: var(--rose); }
-    .nav-links a:hover::after,
-    .nav-links a.active::after { width: 100%; }
-    .nav-links a.active { color: var(--rose); }
+    .nav-links a:hover, .nav-links a.active { color:var(--ink); }
+    .nav-links a:hover::after, .nav-links a.active::after { width:100%; }
 
     .menu-btn {
-      display: none;
-      background: none;
-      border: none;
-      cursor: none;
-      color: var(--ink);
-      font-size: 1.3em;
+      display:none; background:none;
+      border:1px solid rgba(42,51,71,.2);
+      color:var(--ink); padding:7px 14px;
+      font-size:.7em; letter-spacing:2px;
+      text-transform:uppercase; cursor:none;
     }
 
-    /* ─── HERO ───────────────────────────────────────────── */
+    /* ─── HERO ───────────────────────────────────── */
     .hero {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 0 50px 0 50px;
-      position: relative;
-      overflow: hidden;
+      position:relative;
+      min-height:100svh;
+      display:grid;
+      grid-template-rows:1fr auto;
+      overflow:hidden;
     }
 
-    /* Hero background texture */
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(ellipse 70% 80% at 85% 50%, rgba(232,180,168,0.18) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 60% at 10% 80%, rgba(184,137,58,0.08) 0%, transparent 60%);
-      pointer-events: none;
+    /* Animated gradient orb */
+    .hero-orb {
+      position:absolute;
+      width:700px; height:700px;
+      border-radius:50%;
+      background: radial-gradient(circle,
+        rgba(163,189,216,.22) 0%,
+        rgba(123,158,194,.1) 40%,
+        transparent 70%);
+      top:50%; right:-100px;
+      transform:translateY(-50%);
+      animation:orbFloat 8s ease-in-out infinite;
+      pointer-events:none;
     }
 
-    .hero-inner {
-      max-width: 820px;
-      position: relative;
-      z-index: 2;
+    @keyframes orbFloat {
+      0%,100% { transform:translateY(-50%) scale(1); }
+      50%      { transform:translateY(-55%) scale(1.06); }
     }
 
-    .hero-label {
-      font-size: 0.7em;
-      font-weight: 300;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 28px;
-      opacity: 0;
-      transform: translateY(12px);
-      animation: revealUp 0.7s ease 2.2s forwards;
+    /* vertical ruled lines */
+    .hero-rules {
+      position:absolute; inset:0;
+      display:flex; gap:0;
+      pointer-events:none;
     }
 
-    .hero h1 {
-      font-family: 'Cormorant', serif;
-      font-size: clamp(3.5em, 8vw, 6.5em);
-      font-weight: 300;
-      line-height: 1.05;
-      color: var(--ink);
-      margin-bottom: 30px;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: revealUp 0.9s ease 2.4s forwards;
+    .hero-rules span {
+      flex:1;
+      border-right:1px solid rgba(123,158,194,.07);
     }
 
-    .hero h1 em {
-      font-style: italic;
-      color: var(--rose);
+    .hero-rules span:last-child { border:none; }
+
+    /* content */
+    .hero-body {
+      display:flex;
+      flex-direction:column;
+      justify-content:flex-end;
+      padding:160px 56px 72px;
+      position:relative; z-index:2;
     }
 
-    .hero-divider {
-      width: 0;
-      height: 1px;
-      background: linear-gradient(90deg, var(--gold), var(--rose-pale), transparent);
-      margin-bottom: 28px;
-      animation: growWidth 1s ease 2.9s forwards;
+    .h-eyebrow {
+      font-size:.65em; letter-spacing:5px;
+      text-transform:uppercase; color:var(--rose);
+      margin-bottom:24px;
+      opacity:0; transform:translateY(10px);
+    }
+    .h-eyebrow.in { animation:up .7s ease forwards; }
+
+    .hero-title {
+      font-family:var(--serif);
+      font-weight:300;
+      font-size:clamp(4em,10vw,9.5em);
+      line-height:.95;
+      letter-spacing:-1px;
+      color:var(--ink);
+      margin-bottom:44px;
     }
 
-    @keyframes growWidth { to { width: 180px; } }
-
-    .hero-sub {
-      font-size: 1em;
-      font-weight: 300;
-      color: var(--ink-soft);
-      line-height: 1.9;
-      max-width: 480px;
-      opacity: 0;
-      transform: translateY(14px);
-      animation: revealUp 0.8s ease 3s forwards;
+    .hero-title .row {
+      display:block; overflow:hidden;
     }
 
-    /* Big decorative number */
-    .hero-deco-num {
-      position: absolute;
-      right: -20px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-family: 'Cormorant', serif;
-      font-size: 28vw;
-      font-weight: 300;
-      color: rgba(193,119,103,0.04);
-      line-height: 1;
-      pointer-events: none;
-      user-select: none;
-      z-index: 1;
+    .hero-title .row span {
+      display:block;
+      opacity:0; transform:translateY(108%);
     }
 
-    /* Scroll indicator */
-    .scroll-hint {
-      position: absolute;
-      bottom: 40px;
-      left: 50px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      opacity: 0;
-      animation: revealUp 0.7s ease 3.3s forwards;
+    .hero-title .row:nth-child(1) span { animation:lineUp .9s cubic-bezier(.22,1,.36,1) .2s forwards; }
+    .hero-title .row:nth-child(2) span { animation:lineUp .9s cubic-bezier(.22,1,.36,1) .34s forwards; }
+    .hero-title .row:nth-child(3) span { animation:lineUp .9s cubic-bezier(.22,1,.36,1) .48s forwards; }
+
+    .hero-title em { font-style:italic; color:var(--rose); }
+
+    .hero-foot {
+      display:flex; align-items:center; gap:24px;
+      opacity:0; transform:translateY(10px);
+    }
+    .hero-foot.in { animation:up .7s ease .65s forwards; }
+
+    .hero-foot-line { width:40px; height:1px; background:rgba(123,158,194,.4); }
+
+    .hero-foot p {
+      font-size:.85em; font-weight:300;
+      color:rgba(42,51,71,.5);
+      line-height:1.8; max-width:380px;
     }
 
-    .scroll-hint span {
-      font-size: 0.65em;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: #b8a89a;
-      font-weight: 300;
+    /* ghost letter */
+    .hero-ghost {
+      position:absolute; right:-4vw; top:50%;
+      transform:translateY(-50%);
+      font-family:var(--serif);
+      font-size:55vw; font-weight:300; font-style:italic;
+      line-height:1;
+      color:transparent;
+      -webkit-text-stroke:1px rgba(123,158,194,.06);
+      pointer-events:none; user-select:none; z-index:1;
     }
 
-    .scroll-line {
-      width: 40px;
-      height: 1px;
-      background: var(--rose-pale);
-      position: relative;
-      overflow: hidden;
+    /* scroll cue */
+    .hero-scroll {
+      position:relative; z-index:2;
+      padding:0 56px 40px;
+      display:flex; align-items:center; gap:14px;
+      opacity:0;
+    }
+    .hero-scroll.in { animation:up .6s ease .9s forwards; }
+
+    .hero-scroll-label {
+      font-size:.6em; letter-spacing:4px;
+      text-transform:uppercase; color:rgba(42,51,71,.3);
     }
 
-    .scroll-line::after {
-      content: '';
-      position: absolute;
-      top: 0; left: -100%;
-      width: 100%; height: 100%;
-      background: var(--rose);
-      animation: scanLine 2s ease-in-out 3.5s infinite;
+    .hero-scroll-track {
+      width:48px; height:1px;
+      background:rgba(42,51,71,.1);
+      position:relative; overflow:hidden;
     }
 
-    @keyframes scanLine {
-      0% { left: -100%; }
-      100% { left: 100%; }
+    .hero-scroll-track::after {
+      content:'';
+      position:absolute; top:0; left:-100%;
+      width:100%; height:100%;
+      background:linear-gradient(90deg,transparent,var(--rose));
+      animation:scan 2.2s ease-in-out 1.2s infinite;
     }
 
-    @keyframes revealUp {
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes scan { 0%{left:-100%} 100%{left:100%} }
+    @keyframes up   { to{opacity:1;transform:translateY(0)} }
+    @keyframes lineUp { to{opacity:1;transform:translateY(0)} }
+
+    /* ─── DIVIDER ────────────────────────────────── */
+    .rule {
+      width:100%; height:1px;
+      background:linear-gradient(90deg, transparent, rgba(123,158,194,.25), transparent);
     }
 
-    /* ─── POEMS SECTION ──────────────────────────────────── */
+    /* ─── POEMS ──────────────────────────────────── */
     .poems {
-      padding: 100px 50px 120px;
-      position: relative;
+      padding:100px 56px 130px;
+      position:relative;
+      background: var(--cream);
     }
 
-    .section-header {
-      display: flex;
-      align-items: baseline;
-      gap: 20px;
-      margin-bottom: 60px;
+    .poems-top {
+      display:flex; align-items:flex-end;
+      justify-content:space-between;
+      margin-bottom:72px;
     }
 
-    .section-label {
-      font-size: 0.68em;
-      font-weight: 300;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--gold);
+    .poems-label {
+      font-size:.65em; letter-spacing:5px;
+      text-transform:uppercase; color:var(--rose);
     }
 
-    .section-line {
-      flex: 1;
-      height: 1px;
-      background: linear-gradient(90deg, rgba(184,137,58,0.3), transparent);
+    .poems-ghost-num {
+      font-family:var(--serif);
+      font-size:7em; font-weight:300; font-style:italic;
+      color:transparent;
+      -webkit-text-stroke:1px rgba(123,158,194,.12);
+      line-height:1;
     }
 
-    /* Poem grid — masonry feel with alternating sizes */
-    .poem-list {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      gap: 20px;
-    }
+    /* ── list rows ── */
+    .poem-list { display:flex; flex-direction:column; }
 
     .poem-item {
-      position: relative;
-      background: #fff;
-      border: 1px solid rgba(232,213,196,0.7);
-      border-radius: 4px;
-      padding: 32px 28px;
-      overflow: hidden;
-      transition: transform 0.45s cubic-bezier(0.22,1,0.36,1),
-                  box-shadow 0.45s ease,
-                  border-color 0.3s ease;
-      opacity: 0;
-      transform: translateY(30px);
+      border-top:1px solid rgba(123,158,194,.15);
+      position:relative;
+      opacity:0; transform:translateY(18px);
+      transition:border-color .3s;
     }
 
-    .poem-item.visible {
-      animation: cardReveal 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
-    }
+    .poem-item:last-child { border-bottom:1px solid rgba(123,158,194,.15); }
+    .poem-item.on { animation:up .65s ease forwards; }
 
-    @keyframes cardReveal {
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    /* Grid layout — asymmetric */
-    .poem-item:nth-child(1) { grid-column: 1 / 6; }
-    .poem-item:nth-child(2) { grid-column: 6 / 13; }
-    .poem-item:nth-child(3) { grid-column: 1 / 5; }
-    .poem-item:nth-child(4) { grid-column: 5 / 9; }
-    .poem-item:nth-child(5) { grid-column: 9 / 13; }
-
+    /* full-row hover glow */
     .poem-item::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(232,180,168,0.06) 0%, transparent 60%);
-      opacity: 0;
-      transition: opacity 0.4s ease;
+      content:'';
+      position:absolute; inset:0;
+      background:linear-gradient(90deg,
+        rgba(163,189,216,0) 0%,
+        rgba(163,189,216,.07) 40%,
+        rgba(163,189,216,0) 100%);
+      opacity:0; transition:opacity .4s; pointer-events:none;
     }
-
-    .poem-item:hover {
-      transform: translateY(-6px);
-      box-shadow: 0 20px 50px rgba(193,119,103,0.1), 0 4px 12px rgba(0,0,0,0.05);
-      border-color: rgba(232,180,168,0.6);
-    }
-
-    .poem-item:hover::before { opacity: 1; }
-
-    /* Sliding accent bar */
-    .poem-item::after {
-      content: '';
-      position: absolute;
-      bottom: 0; left: 0;
-      width: 0; height: 2px;
-      background: linear-gradient(90deg, var(--rose), var(--rose-pale));
-      transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
-    }
-
-    .poem-item:hover::after { width: 100%; }
+    .poem-item:hover::before { opacity:1; }
+    .poem-item:hover { border-color:rgba(123,158,194,.35); }
 
     .poem-item a {
-      text-decoration: none;
-      color: inherit;
-      display: block;
-      position: relative;
-      z-index: 1;
+      display:grid;
+      grid-template-columns:72px 1fr 120px;
+      align-items:center;
+      gap:28px;
+      padding:34px 0;
+      text-decoration:none; color:inherit;
     }
 
-    .poem-meta {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 18px;
+    .p-idx {
+      font-family:var(--serif);
+      font-size:.85em; font-style:italic;
+      color:rgba(123,158,194,.5);
+      transition:color .3s;
+    }
+    .poem-item:hover .p-idx { color:var(--rose); }
+
+    .p-main {}
+
+    .p-title {
+      font-family:var(--serif);
+      font-size:clamp(1.5em,3vw,2.1em);
+      font-weight:300; line-height:1.15;
+      color:var(--ink); margin-bottom:8px;
+      transition:color .35s, letter-spacing .4s;
+    }
+    .poem-item:hover .p-title { color:var(--rose); letter-spacing:.3px; }
+
+    .p-excerpt {
+      font-size:.8em; font-weight:300;
+      color:rgba(42,51,71,.4);
+      font-style:italic;
+      overflow:hidden; white-space:nowrap;
+      text-overflow:ellipsis; max-width:480px;
     }
 
-    .poem-number {
-      font-family: 'Cormorant', serif;
-      font-size: 0.8em;
-      font-style: italic;
-      color: var(--rose);
-      opacity: 0.7;
+    .p-action {
+      display:flex; flex-direction:column;
+      align-items:flex-end; gap:10px;
     }
 
-    .poem-year {
-      font-size: 0.68em;
-      letter-spacing: 2px;
-      color: #c0b0a0;
-      font-weight: 300;
+    .p-year {
+      font-size:.65em; letter-spacing:2px;
+      color:rgba(42,51,71,.25);
     }
 
-    .poem-item h2 {
-      font-family: 'Cormorant', serif;
-      font-size: 1.6em;
-      font-weight: 400;
-      line-height: 1.25;
-      color: var(--ink);
-      margin-bottom: 12px;
-      transition: color 0.3s ease;
+    .p-btn {
+      width:38px; height:38px;
+      border:1px solid rgba(123,158,194,.2);
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:.85em; color:rgba(42,51,71,.25);
+      transform:rotate(-45deg);
+      transition:all .4s cubic-bezier(.22,1,.36,1);
+    }
+    .poem-item:hover .p-btn {
+      border-color:var(--rose);
+      background:var(--rose);
+      color:#fff;
+      transform:rotate(0deg);
     }
 
-    .poem-item:hover h2 { color: var(--rose); }
-
-    .poem-excerpt {
-      font-size: 0.85em;
-      font-weight: 300;
-      color: #8b7d6b;
-      font-style: italic;
-      line-height: 1.7;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
+    /* ─── MARQUEE BAND ───────────────────────────── */
+    .marquee-band {
+      overflow:hidden;
+      border-top:1px solid rgba(123,158,194,.15);
+      border-bottom:1px solid rgba(123,158,194,.15);
+      padding:20px 0;
+      background:rgba(163,189,216,.06);
     }
 
-    .read-more {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin-top: 20px;
-      font-size: 0.68em;
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      color: var(--rose);
-      opacity: 0;
-      transform: translateX(-8px);
-      transition: opacity 0.3s ease, transform 0.3s ease;
+    .marquee-track {
+      display:flex; gap:0;
+      white-space:nowrap;
+      animation:marquee 22s linear infinite;
     }
 
-    .read-more .arrow {
-      width: 20px;
-      height: 1px;
-      background: var(--rose);
-      position: relative;
-      transition: width 0.3s ease;
+    .marquee-track span {
+      font-family:var(--serif);
+      font-size:1em; font-style:italic; font-weight:300;
+      color:rgba(123,158,194,.4);
+      letter-spacing:4px;
+      padding:0 48px;
     }
 
-    .read-more .arrow::after {
-      content: '';
-      position: absolute;
-      right: 0; top: -3px;
-      width: 6px; height: 6px;
-      border-right: 1px solid var(--rose);
-      border-top: 1px solid var(--rose);
-      transform: rotate(45deg);
+    .marquee-track span b {
+      color:rgba(123,158,194,.3);
+      font-weight:300;
+      padding:0 8px;
     }
 
-    .poem-item:hover .read-more {
-      opacity: 1;
-      transform: translateX(0);
-    }
+    @keyframes marquee { to { transform:translateX(-50%); } }
 
-    .poem-item:hover .read-more .arrow { width: 32px; }
-
-    /* ─── ABOUT SECTION ──────────────────────────────────── */
+    /* ─── QUOTE / ABOUT ──────────────────────────── */
     .about {
-      padding: 80px 50px 100px;
-      background: var(--ink);
-      position: relative;
-      overflow: hidden;
+      padding:120px 56px;
+      position:relative; overflow:hidden;
+      background: linear-gradient(180deg, var(--cream) 0%, #e4ecf7 100%);
     }
 
     .about::before {
-      content: '';
-      position: absolute;
-      top: -1px; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      content:'';
+      position:absolute; inset:0;
+      background:
+        radial-gradient(ellipse 50% 70% at 15% 60%, rgba(163,189,216,.15) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 60% at 85% 30%, rgba(123,158,194,.1) 0%, transparent 65%);
     }
 
     .about-inner {
-      max-width: 560px;
-      margin: 0 auto;
-      text-align: center;
+      max-width:640px; margin:0 auto;
+      text-align:center; position:relative; z-index:1;
     }
 
     .about-label {
-      font-size: 0.68em;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      color: var(--gold);
-      margin-bottom: 30px;
-      opacity: 0;
+      font-size:.65em; letter-spacing:5px; text-transform:uppercase;
+      color:var(--rose); margin-bottom:36px;
+      opacity:0;
+    }
+    .about-label.on { animation:up .7s ease forwards; }
+
+    .about-qmark {
+      font-family:var(--serif);
+      font-size:6em; font-weight:300; font-style:italic;
+      line-height:.5; color:rgba(123,158,194,.2);
+      display:block; margin-bottom:20px;
     }
 
-    .about-label.visible { animation: revealUp 0.7s ease forwards; }
-
-    .about h3 {
-      font-family: 'Cormorant', serif;
-      font-size: 2.4em;
-      font-weight: 300;
-      font-style: italic;
-      color: var(--cream);
-      line-height: 1.3;
-      margin-bottom: 24px;
-      opacity: 0;
+    .about-q {
+      font-family:var(--serif);
+      font-size:clamp(1.5em,3vw,2.2em);
+      font-weight:300; font-style:italic;
+      line-height:1.65; color:rgba(42,51,71,.65);
+      margin-bottom:28px;
+      opacity:0;
     }
+    .about-q.on { animation:up .9s ease .1s forwards; }
 
-    .about h3.visible { animation: revealUp 0.8s ease 0.1s forwards; }
-
-    .about p {
-      font-size: 0.9em;
-      font-weight: 300;
-      color: rgba(250,246,239,0.55);
-      line-height: 2;
-      opacity: 0;
+    .about-attr {
+      font-size:.65em; letter-spacing:4px; text-transform:uppercase;
+      color:rgba(123,158,194,.5);
+      opacity:0;
     }
+    .about-attr.on { animation:up .7s ease .2s forwards; }
 
-    .about p.visible { animation: revealUp 0.8s ease 0.2s forwards; }
-
-    /* Big quote mark */
-    .about-quote {
-      position: absolute;
-      top: 20px; left: 40px;
-      font-family: 'Cormorant', serif;
-      font-size: 18em;
-      font-weight: 300;
-      color: rgba(184,137,58,0.05);
-      line-height: 1;
-      pointer-events: none;
-      user-select: none;
+    .about-vline {
+      width:1px; height:56px;
+      background:linear-gradient(180deg,var(--rose),transparent);
+      margin:28px auto 0;
+      opacity:0;
     }
+    .about-vline.on { animation:up .6s ease .3s forwards; }
 
-    /* ─── FOOTER ─────────────────────────────────────────── */
+    /* ─── FOOTER ─────────────────────────────────── */
     footer {
-      background: var(--ink);
-      border-top: 1px solid rgba(184,137,58,0.12);
-      padding: 32px 50px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding:36px 56px;
+      border-top:1px solid rgba(123,158,194,.2);
+      display:flex; justify-content:space-between; align-items:center;
+      background: var(--cream);
     }
 
     .footer-logo {
-      font-family: 'Cormorant', serif;
-      font-style: italic;
-      font-size: 1em;
-      color: rgba(250,246,239,0.4);
-      text-decoration: none;
+      font-family:var(--serif); font-style:italic; font-size:1.1em;
+      color:rgba(42,51,71,.35); text-decoration:none;
+      transition:color .3s;
     }
+    .footer-logo:hover { color:var(--ink); }
 
     .footer-copy {
-      font-size: 0.7em;
-      letter-spacing: 2px;
-      color: rgba(250,246,239,0.25);
-      font-weight: 300;
+      font-size:.65em; letter-spacing:2px;
+      color:rgba(42,51,71,.25);
     }
 
-    /* ─── MOBILE ─────────────────────────────────────────── */
-    @media (max-width: 900px) {
-      nav { padding: 18px 24px; }
+    /* ─── MOBILE ─────────────────────────────────── */
+    @media (max-width:768px) {
+      #cur, #cur-r { display:none; }
+      body { cursor:auto; }
+
+      nav { padding:18px 24px; }
+      nav.solid { padding:14px 24px; }
 
       .nav-links {
-        position: fixed;
-        top: 0; right: -100%;
-        width: 260px;
-        height: 100vh;
-        background: var(--ink);
-        flex-direction: column;
-        padding: 80px 40px 40px;
-        gap: 30px;
-        transition: right 0.4s cubic-bezier(0.22,1,0.36,1);
-        z-index: 99;
+        position:fixed; inset:0;
+        background:rgba(240,244,250,.98);
+        flex-direction:column;
+        justify-content:center; align-items:center; gap:36px;
+        transform:translateX(100%);
+        transition:transform .5s cubic-bezier(.76,0,.24,1);
+        z-index:490;
       }
+      .nav-links.open { transform:translateX(0); }
+      .nav-links a { font-size:.9em; letter-spacing:4px; color:rgba(42,51,71,.55); }
+      .menu-btn { display:block; cursor:pointer; }
 
-      .nav-links.active { right: 0; }
-      .nav-links a { color: rgba(250,246,239,0.7); font-size: 0.85em; }
-      .nav-links a:hover { color: var(--rose); }
+      .hero-body { padding:130px 24px 56px; }
+      .hero-scroll { padding:0 24px 36px; }
+      .hero-ghost { display:none; }
 
-      .menu-btn { display: block; cursor: none; }
-      .cursor, .cursor-ring { display: none; }
-      body { cursor: auto; }
-      .menu-btn { cursor: pointer; }
+      .poems { padding:72px 24px 90px; }
+      .poem-item a { grid-template-columns:48px 1fr; gap:14px; }
+      .p-action { display:none; }
+      .p-title { font-size:1.4em; }
 
-      .hero { padding: 0 24px; min-height: 100svh; }
-      .hero h1 { font-size: clamp(2.8em, 10vw, 4.5em); }
-      .hero-deco-num { display: none; }
-      .scroll-hint { left: 24px; }
-
-      .poems { padding: 70px 24px 80px; }
-      .poem-list { grid-template-columns: 1fr; }
-      .poem-item:nth-child(n) { grid-column: 1 / -1; }
-
-      .about { padding: 70px 24px 80px; }
-      footer { padding: 28px 24px; flex-direction: column; gap: 12px; }
+      .about { padding:80px 24px; }
+      footer { padding:28px 24px; flex-direction:column; gap:10px; text-align:center; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Loader -->
-  <div id="loader">
-    <div class="loader-title">Puisyaa</div>
-    <div class="loader-line"></div>
-    <div class="loader-sub">Kata yang tak tersampaikan</div>
-    <div class="loader-dots">
-      <span></span><span></span><span></span>
+<!-- LOADER -->
+<div id="loader">
+  <div class="l-wordmark">Puisyaa</div>
+  <div class="l-tagline">Kata yang tak tersampaikan</div>
+  <div class="l-track"></div>
+</div>
+
+<!-- CURSOR -->
+<div id="cur"></div>
+<div id="cur-r"></div>
+
+<!-- NAV -->
+<nav id="nav">
+  <a href="#" class="logo">Puisyaa</a>
+  <button class="menu-btn" id="menuBtn">Menu</button>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#" class="active">Beranda</a></li>
+    <li><a href="#koleksi">Koleksi</a></li>
+    <li><a href="tentang.html">Tentang</a></li>
+    <li><a href="curcol.html">Curcol</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-orb"></div>
+  <div class="hero-rules">
+    <span></span><span></span><span></span><span></span><span></span><span></span>
+  </div>
+  <div class="hero-ghost">P</div>
+
+  <div class="hero-body">
+    <div class="h-eyebrow" id="eyebrow">Kumpulan Karya · 2025–2026</div>
+    <h1 class="hero-title">
+      <span class="row"><span>Kata yang</span></span>
+      <span class="row"><span>tak pernah</span></span>
+      <span class="row"><span><em>tersampaikan.</em></span></span>
+    </h1>
+    <div class="hero-foot" id="heroFoot">
+      <div class="hero-foot-line"></div>
+      <p>Di sini kusimpan segala sesuatu yang tak pernah sempat kusampaikan. Rasa yang kupendam dalam diam, harap yang tumbuh tanpa cinta.</p>
     </div>
   </div>
 
-  <!-- Custom cursor -->
-  <div class="cursor" id="cursor"></div>
-  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="hero-scroll" id="heroScroll">
+    <div class="hero-scroll-track"></div>
+    <span class="hero-scroll-label">Gulir ke bawah</span>
+  </div>
+</section>
 
-  <!-- Nav -->
-  <nav id="navbar">
-    <a href="#" class="logo">Puisyaa</a>
-    <button class="menu-btn" onclick="toggleMenu()" aria-label="Menu">☰</button>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="#" class="active">Beranda</a></li>
-      <li><a href="#koleksi">Koleksi</a></li>
-      <li><a href="#tentang">Tentang</a></li>
-      <li><a href="curcol.html">Curcol</a></li>
-    </ul>
-  </nav>
+<div class="rule"></div>
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-deco-num">P</div>
-    <div class="hero-inner">
-      <div class="hero-label">Kumpulan Karya · 2025–2026</div>
-      <h1>Kata yang<br><em>tak pernah</em><br>tersampaikan</h1>
-      <div class="hero-divider"></div>
-      <p class="hero-sub">Di sini kusimpan segala sesuatu yang tak pernah sempat kusampaikan padamu. Rasa yang kupendam dalam diam, harap yang tumbuh tanpa cinta.</p>
-    </div>
-    <div class="scroll-hint">
-      <span>Gulir</span>
-      <div class="scroll-line"></div>
-    </div>
-  </section>
+<!-- POEMS -->
+<section class="poems" id="koleksi">
+  <div class="poems-top">
+    <span class="poems-label">Karya Terbaru</span>
+    <span class="poems-ghost-num">05</span>
+  </div>
 
-  <!-- Poems -->
-  <section class="poems" id="koleksi">
-    <div class="section-header">
-      <span class="section-label">Karya Terbaru</span>
-      <div class="section-line"></div>
+  <div class="poem-list">
+
+    <div class="poem-item">
+      <a href="sinyal.html">
+        <span class="p-idx">01</span>
+        <div class="p-main">
+          <div class="p-title">Sinyal Tanpa Makna</div>
+          <div class="p-excerpt">Harapan yang tumbuh dari tanda palsu yang kau beri.</div>
+        </div>
+        <div class="p-action">
+          <span class="p-year">2025</span>
+          <div class="p-btn">↗</div>
+        </div>
+      </a>
     </div>
 
-    <div class="poem-list">
-
-      <div class="poem-item">
-        <a href="sinyal.html">
-          <div class="poem-meta">
-            <span class="poem-number">— 01</span>
-            <span class="poem-year">2025</span>
-          </div>
-          <h2>Sinyal Tanpa Makna</h2>
-          <p class="poem-excerpt">Harapan yang tumbuh dari tanda palsu yang kau beri.</p>
-          <div class="read-more">Baca <span class="arrow"></span></div>
-        </a>
-      </div>
-
-      <div class="poem-item">
-        <a href="pelukan.html">
-          <div class="poem-meta">
-            <span class="poem-number">— 02</span>
-            <span class="poem-year">2025</span>
-          </div>
-          <h2>Pelukan yang Menjerat</h2>
-          <p class="poem-excerpt">Yang ku pikir adalah rumah ternyata duri yang menusuk.</p>
-          <div class="read-more">Baca <span class="arrow"></span></div>
-        </a>
-      </div>
-
-      <div class="poem-item">
-        <a href="antara.html">
-          <div class="poem-meta">
-            <span class="poem-number">— 03</span>
-            <span class="poem-year">2025</span>
-          </div>
-          <h2>Antara Kita yang Tak Mungkin</h2>
-          <p class="poem-excerpt">Belajar melepaskanmu yang tak pernah benar-benar kugenggam.</p>
-          <div class="read-more">Baca <span class="arrow"></span></div>
-        </a>
-      </div>
-
-      <div class="poem-item">
-        <a href="akhir.html">
-          <div class="poem-meta">
-            <span class="poem-number">— 04</span>
-            <span class="poem-year">2025</span>
-          </div>
-          <h2>Akhirnya Mati Rasa</h2>
-          <p class="poem-excerpt">Akhir yang tak pernah ku bayangkan, namun lebih baik daripada berharap.</p>
-          <div class="read-more">Baca <span class="arrow"></span></div>
-        </a>
-      </div>
-
-      <div class="poem-item">
-        <a href="perjalanan.html">
-          <div class="poem-meta">
-            <span class="poem-number">— 05</span>
-            <span class="poem-year">2026</span>
-          </div>
-          <h2>Perjalanan yang Asing</h2>
-          <p class="poem-excerpt">Bukan aku yang kau pilih.</p>
-          <div class="read-more">Baca <span class="arrow"></span></div>
-        </a>
-      </div>
-
+    <div class="poem-item">
+      <a href="pelukan.html">
+        <span class="p-idx">02</span>
+        <div class="p-main">
+          <div class="p-title">Pelukan yang Menjerat</div>
+          <div class="p-excerpt">Yang ku pikir adalah rumah ternyata duri yang menusuk.</div>
+        </div>
+        <div class="p-action">
+          <span class="p-year">2025</span>
+          <div class="p-btn">↗</div>
+        </div>
+      </a>
     </div>
-  </section>
 
-  <!-- About -->
-  <section class="about" id="tentang">
-    <div class="about-quote">"</div>
-    <div class="about-inner">
-      <div class="about-label">Tentang</div>
-      <h3>Semua yang tak bisa diucapkan, ditulis di sini</h3>
-      <p>Puisi-puisi ini lahir dari perasaan yang terlalu besar untuk disimpan sendiri. Bukan untuk dibaca oleh siapa pun — tapi kalau kau menemukan dirimu di sini, mungkin kita merasakan hal yang sama.</p>
+    <div class="poem-item">
+      <a href="antara.html">
+        <span class="p-idx">03</span>
+        <div class="p-main">
+          <div class="p-title">Antara Kita yang Tak Mungkin</div>
+          <div class="p-excerpt">Belajar melepaskanmu yang tak pernah benar-benar kugenggam.</div>
+        </div>
+        <div class="p-action">
+          <span class="p-year">2025</span>
+          <div class="p-btn">↗</div>
+        </div>
+      </a>
     </div>
-  </section>
 
-  <footer>
-    <a href="#" class="footer-logo">Puisyaa</a>
-    <span class="footer-copy">© 2025 — Semua rasa tersimpan di sini</span>
-  </footer>
+    <div class="poem-item">
+      <a href="akhir.html">
+        <span class="p-idx">04</span>
+        <div class="p-main">
+          <div class="p-title">Akhirnya Mati Rasa</div>
+          <div class="p-excerpt">Akhir yang tak pernah ku bayangkan, namun lebih baik daripada berharap.</div>
+        </div>
+        <div class="p-action">
+          <span class="p-year">2025</span>
+          <div class="p-btn">↗</div>
+        </div>
+      </a>
+    </div>
 
-  <script>
-    // ── LOADER ──────────────────────────────────────────
-    window.addEventListener('load', () => {
+    <div class="poem-item">
+      <a href="perjalanan.html">
+        <span class="p-idx">05</span>
+        <div class="p-main">
+          <div class="p-title">Perjalanan yang Asing</div>
+          <div class="p-excerpt">Bukan aku yang kau pilih.</div>
+        </div>
+        <div class="p-action">
+          <span class="p-year">2026</span>
+          <div class="p-btn">↗</div>
+        </div>
+      </a>
+    </div>
+
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-band">
+  <div class="marquee-track">
+    <span>Puisyaa <b>·</b> Kata yang tak tersampaikan <b>·</b> Puisi <b>·</b> Rasa yang kupendam <b>·</b> 2025</span>
+    <span>Puisyaa <b>·</b> Kata yang tak tersampaikan <b>·</b> Puisi <b>·</b> Rasa yang kupendam <b>·</b> 2025</span>
+    <span>Puisyaa <b>·</b> Kata yang tak tersampaikan <b>·</b> Puisi <b>·</b> Rasa yang kupendam <b>·</b> 2025</span>
+  </div>
+</div>
+
+<div class="rule"></div>
+
+<!-- ABOUT -->
+<section class="about">
+  <div class="about-inner">
+    <div class="about-label" id="aLabel">Tentang</div>
+    <span class="about-qmark">"</span>
+    <p class="about-q" id="aQ">Semua yang tak bisa diucapkan, ditulis di sini. Bukan untuk dibaca siapa pun — tapi kalau kau menemukan dirimu di dalamnya, mungkin kita merasakan hal yang sama.</p>
+    <div class="about-attr" id="aAttr">Puisyaa · 2025</div>
+    <div class="about-vline" id="aLine"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a href="#" class="footer-logo">Puisyaa</a>
+  <span class="footer-copy">© 2025 — Semua rasa tersimpan di sini</span>
+</footer>
+
+<script>
+  // ── LOADER — skip jika sudah pernah buka ──────────
+  const loader = document.getElementById('loader');
+  if (sessionStorage.getItem('seen')) {
+    loader.classList.add('skip');
+    triggerHero();
+  } else {
+    sessionStorage.setItem('seen','1');
+    // tunggu font + aset siap
+    const go = () => {
       setTimeout(() => {
-        document.getElementById('loader').classList.add('hidden');
-      }, 2600);
+        loader.classList.add('out');
+        setTimeout(() => { loader.classList.add('skip'); triggerHero(); }, 1000);
+      }, 1800);
+    };
+    document.fonts.ready.then(go);
+  }
+
+  function triggerHero() {
+    document.getElementById('eyebrow').classList.add('in');
+    document.getElementById('heroFoot').classList.add('in');
+    document.getElementById('heroScroll').classList.add('in');
+  }
+
+  // ── CURSOR ────────────────────────────────────────
+  const cur=document.getElementById('cur'), curR=document.getElementById('cur-r');
+  let mx=0,my=0,rx=0,ry=0;
+  document.addEventListener('mousemove',e=>{
+    mx=e.clientX; my=e.clientY;
+    cur.style.left=mx+'px'; cur.style.top=my+'px';
+  });
+  (function loop(){ rx+=(mx-rx)*.1; ry+=(my-ry)*.1;
+    curR.style.left=rx+'px'; curR.style.top=ry+'px';
+    requestAnimationFrame(loop); })();
+  document.querySelectorAll('a,.poem-item').forEach(el=>{
+    el.addEventListener('mouseenter',()=>document.body.classList.add('cur-hover'));
+    el.addEventListener('mouseleave',()=>document.body.classList.remove('cur-hover'));
+  });
+
+  // ── NAV ───────────────────────────────────────────
+  const nav=document.getElementById('nav');
+  window.addEventListener('scroll',()=>nav.classList.toggle('solid',scrollY>60));
+  document.getElementById('menuBtn').addEventListener('click',()=>
+    document.getElementById('navLinks').classList.toggle('open'));
+  document.querySelectorAll('.nav-links a').forEach(a=>
+    a.addEventListener('click',()=>document.getElementById('navLinks').classList.remove('open')));
+
+  // ── SCROLL REVEAL ─────────────────────────────────
+  const io = new IntersectionObserver(entries=>{
+    entries.forEach(e=>{
+      if(!e.isIntersecting) return;
+      e.target.classList.add('on');
+      io.unobserve(e.target);
     });
+  },{threshold:0.12});
 
-    // ── CURSOR ──────────────────────────────────────────
-    const cursor = document.getElementById('cursor');
-    const ring = document.getElementById('cursorRing');
-    let mx = 0, my = 0, rx = 0, ry = 0;
+  document.querySelectorAll('.poem-item').forEach((el,i)=>{
+    el.style.animationDelay=(i*.09)+'s';
+    io.observe(el);
+  });
 
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      cursor.style.left = mx + 'px';
-      cursor.style.top  = my + 'px';
-    });
-
-    function animateRing() {
-      rx += (mx - rx) * 0.12;
-      ry += (my - ry) * 0.12;
-      ring.style.left = rx + 'px';
-      ring.style.top  = ry + 'px';
-      requestAnimationFrame(animateRing);
-    }
-    animateRing();
-
-    // ── NAV SCROLL ───────────────────────────────────────
-    const navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-      navbar.classList.toggle('scrolled', window.scrollY > 60);
-    });
-
-    // ── MOBILE MENU ──────────────────────────────────────
-    function toggleMenu() {
-      document.getElementById('navLinks').classList.toggle('active');
-    }
-    document.querySelectorAll('.nav-links a').forEach(a =>
-      a.addEventListener('click', () =>
-        document.getElementById('navLinks').classList.remove('active')
-      )
-    );
-
-    // ── SCROLL REVEAL ────────────────────────────────────
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-        }
-      });
-    }, { threshold: 0.12 });
-
-    // Cards with stagger
-    document.querySelectorAll('.poem-item').forEach((el, i) => {
-      el.style.animationDelay = (i * 0.1) + 's';
-      observer.observe(el);
-    });
-
-    // About section elements
-    document.querySelectorAll('.about-label, .about h3, .about p').forEach(el => {
-      observer.observe(el);
-    });
-  </script>
+  ['aLabel','aQ','aAttr','aLine'].forEach(id=>{
+    const el=document.getElementById(id); if(el) io.observe(el);
+  });
+</script>
 </body>
 </html>
