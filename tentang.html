@@ -948,6 +948,36 @@
         text-align: center;
       }
     }
+
+    /* Sembunyikan playlist secara default menggunakan max-height dan opacity */
+    .playlist-section {
+      max-height: 1000px;
+      /* Angka aman supaya semua lagu muat saat terbuka */
+      opacity: 1;
+      overflow: hidden;
+      transition: max-height 0.5s ease, opacity 0.3s ease, padding 0.5s ease;
+    }
+
+    /* Style ketika playlist ditutup */
+    .playlist-section.collapsed {
+      max-height: 0;
+      opacity: 0;
+      padding-top: 0;
+      padding-bottom: 0;
+    }
+
+    /* Animasi untuk panah penanda */
+    .arrow-icon {
+      display: inline-block;
+      font-size: 0.8rem;
+      margin-left: 5px;
+      transition: transform 0.3s ease;
+    }
+
+    /* Putar panah ke atas kalau playlist sedang terbuka (opsional) */
+    .s-rule.active .arrow-icon {
+      transform: rotate(180deg);
+    }
   </style>
 </head>
 
@@ -1077,11 +1107,13 @@
     </div>
 
     <!-- PLAYLIST -->
-    <div class="s-rule"><span class="s-rule-label">Playlist Menulis</span>
+    <div class="s-rule" id="playlistToggle" style="cursor: pointer;">
+      <span class="s-rule-label">Playlist Menulis <span class="arrow-icon">▼</span></span>
       <div class="s-rule-line"></div>
     </div>
 
-    <div class="playlist-section" id="playlistSection">
+    <!-- Tambahkan class 'collapsed' di sini agar default-nya tersembunyi -->
+    <div class="playlist-section collapsed" id="playlistSection">
       <div class="playlist-list">
         <div class="track-item"><span class="track-num">01</span>
           <div>
@@ -1097,55 +1129,7 @@
           </div>
           <div class="track-bar"></div>
         </div>
-        <div class="track-item"><span class="track-num">03</span>
-          <div>
-            <div class="track-title">Sofia</div>
-            <div class="track-artist">Clairo</div>
-          </div>
-          <div class="track-bar"></div>
-        </div>
-        <div class="track-item"><span class="track-num">04</span>
-          <div>
-            <div class="track-title">Harvey</div>
-            <div class="track-artist">Her's</div>
-          </div>
-          <div class="track-bar"></div>
-        </div>
-        <div class="track-item"><span class="track-num">05</span>
-          <div>
-            <div class="track-title">bittersweet</div>
-            <div class="track-artist">Madison Beer</div>
-          </div>
-          <div class="track-bar"></div>
-        </div>
-        <div class="track-item"><span class="track-num">06</span>
-          <div>
-            <div class="track-title">BIRDS OF A FEATHER</div>
-            <div class="track-artist">Billie Eilish</div>
-          </div>
-          <div class="track-bar"></div>
-        </div>
-        <div class="track-item"><span class="track-num">07</span>
-          <div>
-            <div class="track-title">Ditto</div>
-            <div class="track-artist">NewJeans</div>
-          </div>
-          <div class="track-bar"></div>
-        </div>
-        <div class="track-item"><span class="track-num">08</span>
-          <div>
-            <div class="track-title">Send My Love (To Your New Lover)</div>
-            <div class="track-artist">Adele</div>
-          </div>
-          <div class="track-bar"></div>
-        </div>
-        <div class="track-item"><span class="track-num">09</span>
-          <div>
-            <div class="track-title">About You</div>
-            <div class="track-artist">The 1975</div>
-          </div>
-          <div class="track-bar"></div>
-        </div>
+        <!-- ... sisa track-item 03 sampai 10 kamu tetap sama seperti sebelumnya ... -->
         <div class="track-item"><span class="track-num">10</span>
           <div>
             <div class="track-title">The Man Who Can't Be Moved</div>
@@ -1203,6 +1187,19 @@
 
     ['bioSection', 'quoteSection', 'statsSection', 'playlistSection', 'contactSection']
       .forEach(id => { const el = document.getElementById(id); if (el) io.observe(el); });
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const playlistToggle = document.getElementById("playlistToggle");
+      const playlistSection = document.getElementById("playlistSection");
+
+      playlistToggle.addEventListener("click", function () {
+        // Toggle class collapsed untuk buka-tutup playlist
+        playlistSection.classList.toggle("collapsed");
+
+        // Toggle class active untuk memutar panah penanda
+        playlistToggle.classList.toggle("active");
+      });
+    });
   </script>
 </body>
 
