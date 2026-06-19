@@ -1,645 +1,631 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Pokémon — Puisyaa</title>
   <link rel="icon" type="image/png" href="picture/logo.png">
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preload" as="style"
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,600&family=Jost:wght@200;300;400&family=Baloo+2:wght@500;700;800&family=Space+Mono:wght@400;700&display=swap">
-  <link rel="stylesheet"
-    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400;1,600&family=Jost:wght@200;300;400&family=Baloo+2:wght@500;700;800&family=Space+Mono:wght@400;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,500;0,700;0,800;0,900;1,400&family=Quicksand:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap">
 
   <style>
-    *,
-    *::before,
-    *::after {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
 
     :root {
-      /* ── Puisyaa base (navbar / footer tetap pakai ini) ── */
-      --ink: #2a3347;
-      --cream: #f0f4fa;
-      --parch: #dde6f5;
-      --blue: #7a9bbf;
-      --serif: 'Cormorant Garamond', Georgia, serif;
-      --sans: 'Jost', system-ui, sans-serif;
+      /* pastel palette */
+      --bg:       #fdf6ff;
+      --bg2:      #f5edff;
+      --surface:  #ffffff;
+      --ink:      #3d2b4e;
+      --ink2:     rgba(61,43,78,.5);
+      --ink3:     rgba(61,43,78,.28);
+      --border:   rgba(61,43,78,.09);
 
-      /* ── Pokédex base ── */
-      --display: 'Baloo 2', var(--sans);
-      --mono: 'Space Mono', monospace;
-      --dex-bg: #fffaf0;
-      --dex-ink: #2b2330;
-      --dex-card: #ffffff;
-      --dex-line: rgba(43, 35, 48, .08);
+      /* type accent — overridden per type */
+      --ta:  #c084fc;
+      --tb:  #e879f9;
+      --tc:  #fdf4ff;
+      --tsh: rgba(192,132,252,.28);
 
-      /* ── Tipe aktif (default Fire) — diganti via JS ── */
-      --type-a: #ff6b4a;
-      --type-b: #ffb14e;
-      --type-c: #fff1e6;
-      --type-shadow: rgba(255, 107, 74, .25);
+      --display: 'Nunito', sans-serif;
+      --body:    'Quicksand', sans-serif;
+      --mono:    'Space Mono', monospace;
+
+      --radius-card: 20px;
+      --radius-pill: 100px;
     }
 
-    html {
-      scroll-behavior: smooth;
-    }
-
-    html,
-    body {
-      background: var(--dex-bg);
-    }
+    html { scroll-behavior: smooth; }
+    html, body { background: var(--bg); }
 
     body {
-      font-family: var(--sans);
-      color: var(--dex-ink);
+      font-family: var(--body);
+      color: var(--ink);
       overflow-x: hidden;
       cursor: none;
       line-height: 1.6;
-      transition: background .6s ease;
+      transition: background .5s, color .5s;
     }
+    body.modal-open { overflow: hidden; }
 
+    /* grain overlay */
     body::after {
       content: '';
-      position: fixed;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-size: 160px 160px;
-      opacity: 0.02;
+      position: fixed; inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px;
+      opacity: 0.018;
       pointer-events: none;
-      z-index: 9000;
+      z-index: 9999;
     }
 
-    /* ── CURSOR ── */
+    /* floating blobs */
+    .blob {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 0;
+      filter: blur(80px);
+      opacity: .35;
+      transition: background 1s ease;
+    }
+    .blob1 { width: 420px; height: 420px; top: -140px; right: -100px; background: radial-gradient(circle, var(--tb), var(--ta)); animation: drift1 14s ease-in-out infinite; }
+    .blob2 { width: 280px; height: 280px; bottom: 10%; left: -80px; background: radial-gradient(circle, #a5f3fc, #67e8f9); animation: drift2 18s ease-in-out infinite; }
+    .blob3 { width: 200px; height: 200px; bottom: 30%; right: 8%; background: radial-gradient(circle, #fbcfe8, #f9a8d4); animation: drift1 11s ease-in-out infinite reverse; }
+
+    @keyframes drift1 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(-20px,30px) scale(1.08)} }
+    @keyframes drift2 { 0%,100%{transform:translate(0,0) scale(1)} 50%{transform:translate(16px,-22px) scale(1.05)} }
+
+    /* CURSOR */
     #cur {
-      position: fixed;
-      width: 6px;
-      height: 6px;
-      background: var(--type-a);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 8000;
-      transform: translate(-50%, -50%);
-      transition: width .2s, height .2s, background .3s;
+      position: fixed; width: 8px; height: 8px;
+      background: var(--ta); border-radius: 50%;
+      pointer-events: none; z-index: 8000;
+      transform: translate(-50%,-50%);
+      transition: width .2s, height .2s, background .4s;
+      mix-blend-mode: multiply;
     }
-
     #cur-r {
-      position: fixed;
-      width: 30px;
-      height: 30px;
-      border: 1px solid var(--type-shadow);
-      border-radius: 50%;
-      pointer-events: none;
-      z-index: 7999;
-      transform: translate(-50%, -50%);
-      transition: width .5s cubic-bezier(.22, 1, .36, 1),
-        height .5s cubic-bezier(.22, 1, .36, 1), border-color .4s;
+      position: fixed; width: 32px; height: 32px;
+      border: 1.5px solid var(--ta); border-radius: 50%;
+      pointer-events: none; z-index: 7999;
+      transform: translate(-50%,-50%);
+      transition: width .45s cubic-bezier(.22,1,.36,1), height .45s cubic-bezier(.22,1,.36,1), border-color .4s, opacity .3s;
+      opacity: .6;
     }
+    body.hov #cur { width: 14px; height: 14px; }
+    body.hov #cur-r { width: 52px; height: 52px; opacity: 1; }
 
-    body.hov #cur {
-      width: 12px;
-      height: 12px;
-      background: var(--dex-ink);
-    }
-
-    body.hov #cur-r {
-      width: 56px;
-      height: 56px;
-      border-color: rgba(43, 35, 48, .25);
-    }
-
-    /* ── NAV (struktur sama dengan halaman lain) ── */
+    /* NAV */
     nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 500;
-      padding: 22px 56px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(255, 250, 240, .85);
-      backdrop-filter: blur(20px);
-      border-bottom: 1px solid var(--dex-line);
-      transition: border-color .6s ease;
+      position: fixed; top: 0; left: 0; right: 0; z-index: 500;
+      padding: 18px 52px;
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(253,246,255,.82);
+      backdrop-filter: blur(24px);
+      border-bottom: 1px solid var(--border);
     }
-
     .logo {
-      font-family: var(--serif);
-      font-size: 1.25em;
-      font-style: italic;
-      font-weight: 300;
-      color: var(--dex-ink);
+      font-family: var(--display);
+      font-weight: 900;
+      font-size: 1.15em;
+      color: var(--ink);
       text-decoration: none;
-      letter-spacing: 2px;
+      letter-spacing: -.5px;
     }
-
-    .nav-links {
-      display: flex;
-      gap: 44px;
-      list-style: none;
+    .logo span {
+      background: linear-gradient(135deg, var(--ta), var(--tb));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: background 1s;
     }
-
+    .nav-links { display: flex; gap: 40px; list-style: none; }
     .nav-links a {
-      font-size: .68em;
-      letter-spacing: 3px;
-      text-transform: uppercase;
-      color: rgba(43, 35, 48, .45);
+      font-family: var(--body);
+      font-size: .78em; font-weight: 600;
+      letter-spacing: .5px;
+      color: var(--ink2);
       text-decoration: none;
       transition: color .3s;
       position: relative;
     }
-
     .nav-links a::after {
-      content: '';
-      position: absolute;
-      bottom: -4px;
-      left: 0;
-      width: 0;
-      height: 1px;
-      background: var(--type-a);
-      transition: width .4s ease, background .4s ease;
+      content: ''; position: absolute; bottom: -3px; left: 0;
+      width: 0; height: 2px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--ta), var(--tb));
+      transition: width .35s ease;
     }
-
-    .nav-links a:hover,
-    .nav-links a.active {
-      color: var(--dex-ink);
-    }
-
-    .nav-links a:hover::after,
-    .nav-links a.active::after {
-      width: 100%;
-    }
-
+    .nav-links a:hover, .nav-links a.active { color: var(--ink); }
+    .nav-links a:hover::after, .nav-links a.active::after { width: 100%; }
     .menu-btn {
-      display: none;
-      background: none;
-      border: 1px solid rgba(43, 35, 48, .18);
-      color: var(--dex-ink);
-      padding: 7px 14px;
-      font-size: .7em;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      cursor: none;
+      display: none; background: none;
+      border: 1.5px solid var(--border); color: var(--ink);
+      padding: 7px 16px; font-family: var(--body);
+      font-size: .72em; font-weight: 700; border-radius: var(--radius-pill);
+      cursor: none; transition: border-color .3s;
     }
 
-    /* ── HERO ── */
-    .dex-hero {
-      position: relative;
-      padding: 168px 56px 64px;
+    /* HERO */
+    .hero {
+      position: relative; z-index: 1;
+      padding: 160px 52px 56px;
       overflow: hidden;
     }
-
-    .dex-hero::before {
-      content: '';
-      position: absolute;
-      top: -180px;
-      right: -120px;
-      width: 480px;
-      height: 480px;
-      border-radius: 50%;
-      background: radial-gradient(circle, var(--type-b) 0%, var(--type-a) 55%, transparent 75%);
-      opacity: .25;
-      filter: blur(10px);
-      transition: background 1s ease;
-      animation: float 9s ease-in-out infinite;
-    }
-
-    @keyframes float {
-
-      0%,
-      100% {
-        transform: translateY(0) scale(1);
-      }
-
-      50% {
-        transform: translateY(24px) scale(1.05);
-      }
-    }
-
-    .dex-eyebrow {
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--tc);
+      border: 1px solid rgba(192,132,252,.25);
+      border-radius: var(--radius-pill);
+      padding: 6px 16px;
       font-family: var(--mono);
-      font-size: .7em;
-      letter-spacing: 4px;
+      font-size: .62em; letter-spacing: 2px;
       text-transform: uppercase;
-      color: var(--type-a);
-      margin-bottom: 18px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: color .5s ease;
+      color: var(--ta);
+      margin-bottom: 22px;
+      transition: background .5s, color .5s, border-color .5s;
     }
-
-    .dex-eyebrow::before {
+    .hero-eyebrow::before {
       content: '';
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--ta);
       display: inline-block;
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--type-a);
-      box-shadow: 0 0 0 4px var(--type-c);
-      transition: background .5s ease, box-shadow .5s ease;
+      box-shadow: 0 0 0 3px rgba(192,132,252,.3);
+      transition: background .5s, box-shadow .5s;
     }
-
-    .dex-title {
+    .hero-title {
       font-family: var(--display);
-      font-weight: 800;
-      font-size: clamp(2.8em, 8vw, 5.5em);
-      line-height: 1;
-      letter-spacing: -1px;
-      color: var(--dex-ink);
-      max-width: 14ch;
+      font-weight: 900;
+      font-size: clamp(2.6em, 7.5vw, 5em);
+      line-height: 1.05;
+      color: var(--ink);
+      max-width: 16ch;
+      letter-spacing: -.5px;
+    }
+    .hero-title .grad {
+      background: linear-gradient(135deg, var(--ta) 20%, var(--tb) 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      transition: background 1s;
+    }
+    .hero-sub {
+      margin-top: 18px;
+      max-width: 44ch;
+      font-size: .97em;
+      font-weight: 500;
+      color: var(--ink2);
     }
 
-    .dex-title span {
-      color: var(--type-a);
-      transition: color .5s ease;
-    }
-
-    .dex-sub {
-      margin-top: 22px;
-      max-width: 46ch;
-      font-size: 1.02em;
-      color: rgba(43, 35, 48, .6);
-    }
-
-    /* ── TYPE TABS ── */
+    /* TYPE TABS */
     .type-tabs {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-top: 44px;
+      position: relative; z-index: 2;
+      display: flex; gap: 8px; flex-wrap: wrap;
+      margin-top: 40px;
     }
-
     .type-tab {
-      font-family: var(--display);
+      font-family: var(--body);
       font-weight: 700;
-      font-size: .95em;
-      letter-spacing: .5px;
-      padding: 14px 28px;
-      border-radius: 100px;
-      border: 2px solid var(--dex-line);
-      background: var(--dex-card);
-      color: var(--dex-ink);
+      font-size: .78em;
+      padding: 8px 18px;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--ink2);
       cursor: none;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      transition: all .35s cubic-bezier(.22, 1, .36, 1);
+      display: flex; align-items: center; gap: 7px;
+      transition: all .3s cubic-bezier(.22,1,.36,1);
+      box-shadow: 0 2px 8px rgba(61,43,78,.04);
     }
-
     .type-tab .dot {
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      flex-shrink: 0;
+      width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0;
     }
-
-    .type-tab[data-type="fire"] .dot {
-      background: linear-gradient(135deg, #ff6b4a, #ffb14e);
-    }
-
-    .type-tab[data-type="water"] .dot {
-      background: linear-gradient(135deg, #3aa6ff, #7fe3ff);
-    }
-
-    .type-tab[data-type="grass"] .dot {
-      background: linear-gradient(135deg, #4cb963, #b6e388);
-    }
-
     .type-tab:hover {
-      transform: translateY(-3px);
-      border-color: var(--type-a);
+      border-color: var(--ta);
+      color: var(--ink);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px -4px var(--tsh);
     }
-
     .type-tab.active {
-      background: var(--type-a);
-      border-color: var(--type-a);
+      background: linear-gradient(135deg, var(--ta), var(--tb));
+      border-color: transparent;
       color: #fff;
-      box-shadow: 0 14px 28px -10px var(--type-shadow);
-      transform: translateY(-3px);
+      box-shadow: 0 8px 20px -6px var(--tsh);
+      transform: translateY(-2px);
     }
 
-    /* ── DEX GRID ── */
+    /* GRID SECTION */
     .dex-section {
-      padding: 20px 56px 140px;
-      position: relative;
+      position: relative; z-index: 1;
+      padding: 16px 52px 120px;
     }
 
     .dex-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 32px;
-      margin-top: 24px;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-top: 20px;
     }
 
+    /* CARD */
     .dex-card {
-      background: var(--dex-card);
-      border: 2px solid var(--dex-line);
-      border-radius: 28px;
-      padding: 28px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-card);
+      padding: 16px 14px 14px;
       position: relative;
       overflow: hidden;
       opacity: 0;
-      transform: translateY(24px);
-      transition: transform .6s cubic-bezier(.22, 1, .36, 1),
-        opacity .6s ease, border-color .5s ease, box-shadow .5s ease;
+      transform: translateY(20px) scale(.97);
+      transition:
+        transform .55s cubic-bezier(.22,1,.36,1),
+        opacity .55s ease,
+        border-color .4s,
+        box-shadow .4s;
+      cursor: none;
     }
-
-    .dex-card.show {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .dex-card:hover {
-      border-color: var(--type-a);
-      box-shadow: 0 24px 50px -20px var(--type-shadow);
-      transform: translateY(-6px);
-    }
-
     .dex-card::before {
-      content: attr(data-num);
-      position: absolute;
-      top: 18px;
-      right: 22px;
-      font-family: var(--mono);
-      font-size: .75em;
-      letter-spacing: 2px;
-      color: rgba(43, 35, 48, .25);
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(145deg, var(--tc) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity .4s;
+      pointer-events: none;
+      border-radius: var(--radius-card);
+    }
+    .dex-card:hover::before { opacity: 1; }
+    .dex-card.show { opacity: 1; transform: translateY(0) scale(1); }
+    .dex-card:hover {
+      border-color: var(--ta);
+      box-shadow: 0 16px 36px -12px var(--tsh);
+      transform: translateY(-5px) scale(1.01);
     }
 
-    .dex-card-art {
-      width: 100%;
-      aspect-ratio: 1 / 1;
-      border-radius: 20px;
-      background: var(--type-c);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 22px;
-      overflow: hidden;
-      transition: background .5s ease;
+    /* pokemon number */
+    .card-num {
+      position: absolute; top: 11px; right: 13px;
+      font-family: var(--mono); font-size: .58em;
+      color: var(--ink3); letter-spacing: 1.5px;
     }
 
-    .dex-card-art img {
-      width: 78%;
-      height: 78%;
-      object-fit: contain;
-      filter: drop-shadow(0 14px 18px rgba(0, 0, 0, .12));
-      transition: transform .5s cubic-bezier(.22, 1, .36, 1);
+    /* legendary / mythical badges */
+    .dex-card.legendary .card-badge,
+    .dex-card.mythical .card-badge {
+      display: inline-flex;
     }
-
-    .dex-card:hover .dex-card-art img {
-      transform: scale(1.08) translateY(-4px);
+    .card-badge {
+      display: none;
+      position: absolute; top: 10px; left: 12px;
+      align-items: center; gap: 4px;
+      font-family: var(--body);
+      font-size: .52em; font-weight: 800;
+      letter-spacing: .5px;
+      padding: 3px 9px; border-radius: var(--radius-pill);
     }
-
-    /* fallback silhouette saat gambar belum ada */
-    .dex-card-art .fallback {
-      font-family: var(--display);
-      font-weight: 800;
-      font-size: 1em;
-      letter-spacing: 2px;
-      color: var(--type-a);
-      text-align: center;
-      padding: 0 16px;
-      opacity: .55;
+    .dex-card.legendary .card-badge {
+      background: linear-gradient(135deg, #fde68a, #f59e0b);
+      color: #6b3f00;
     }
-
-    .dex-card-name {
-      font-family: var(--display);
-      font-weight: 800;
-      font-size: 1.5em;
-      color: var(--dex-ink);
-      margin-bottom: 6px;
-    }
-
-    .dex-card-tagline {
-      font-size: .85em;
-      color: rgba(43, 35, 48, .5);
-      margin-bottom: 18px;
-      min-height: 2.6em;
-    }
-
-    .dex-card-types {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
-    }
-
-    .type-pill {
-      font-family: var(--mono);
-      font-size: .68em;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      padding: 6px 14px;
-      border-radius: 100px;
+    .dex-card.mythical .card-badge {
+      background: linear-gradient(135deg, #e9d5ff, #a855f7);
       color: #fff;
     }
 
-    .type-pill.fire {
-      background: linear-gradient(135deg, #ff6b4a, #ffb14e);
+    /* art */
+    .card-art {
+      width: 100%; aspect-ratio: 1/1;
+      border-radius: 14px;
+      background: var(--tc);
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 12px; overflow: hidden;
+      transition: background .5s;
+      position: relative;
+    }
+    .card-art img {
+      width: 76%; height: 76%; object-fit: contain;
+      filter: drop-shadow(0 8px 14px rgba(61,43,78,.14));
+      transition: transform .5s cubic-bezier(.22,1,.36,1);
+    }
+    .dex-card:hover .card-art img { transform: scale(1.12) translateY(-5px); }
+    .card-art .fallback {
+      font-family: var(--display); font-weight: 900;
+      font-size: .78em; color: var(--ta); opacity: .5;
+      text-align: center; padding: 8px;
     }
 
-    .type-pill.water {
-      background: linear-gradient(135deg, #3aa6ff, #7fe3ff);
+    .card-name {
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 1em;
+      color: var(--ink);
+      margin-bottom: 8px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
+    .card-types { display: flex; gap: 5px; flex-wrap: wrap; }
 
-    .type-pill.grass {
-      background: linear-gradient(135deg, #4cb963, #b6e388);
+    /* TYPE PILLS */
+    .type-pill {
+      font-family: var(--body);
+      font-size: .56em; font-weight: 700;
+      letter-spacing: .5px;
+      text-transform: capitalize;
+      padding: 3px 10px; border-radius: var(--radius-pill);
+      color: #fff;
     }
+    .type-pill.normal   { background: #a8a8a0; }
+    .type-pill.fire     { background: linear-gradient(135deg,#fb923c,#ef4444); }
+    .type-pill.water    { background: linear-gradient(135deg,#38bdf8,#6366f1); }
+    .type-pill.grass    { background: linear-gradient(135deg,#4ade80,#16a34a); }
+    .type-pill.electric { background: linear-gradient(135deg,#fbbf24,#f59e0b); color: #3a2e00; }
+    .type-pill.ice      { background: linear-gradient(135deg,#67e8f9,#22d3ee); color: #134e4a; }
+    .type-pill.fighting { background: linear-gradient(135deg,#f43f5e,#be123c); }
+    .type-pill.poison   { background: linear-gradient(135deg,#c084fc,#9333ea); }
+    .type-pill.ground   { background: linear-gradient(135deg,#fb923c,#b45309); }
+    .type-pill.flying   { background: linear-gradient(135deg,#a5b4fc,#818cf8); }
+    .type-pill.psychic  { background: linear-gradient(135deg,#f472b6,#ec4899); }
+    .type-pill.bug      { background: linear-gradient(135deg,#a3e635,#65a30d); }
+    .type-pill.rock     { background: linear-gradient(135deg,#d4b483,#a07850); }
+    .type-pill.ghost    { background: linear-gradient(135deg,#818cf8,#4f46e5); }
+    .type-pill.dragon   { background: linear-gradient(135deg,#60a5fa,#2563eb); }
+    .type-pill.dark     { background: linear-gradient(135deg,#6b7280,#374151); }
+    .type-pill.steel    { background: linear-gradient(135deg,#94a3b8,#475569); }
+    .type-pill.fairy    { background: linear-gradient(135deg,#f9a8d4,#ec4899); }
 
-    .dex-stats {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .stat-row {
-      display: grid;
-      grid-template-columns: 60px 1fr 40px;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .stat-label {
-      font-family: var(--mono);
-      font-size: .65em;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      color: rgba(43, 35, 48, .45);
-    }
-
-    .stat-track {
-      height: 6px;
-      border-radius: 100px;
-      background: var(--dex-line);
-      overflow: hidden;
-    }
-
-    .stat-fill {
-      height: 100%;
-      border-radius: 100px;
-      background: var(--type-a);
-      width: 0%;
-      transition: width 1s cubic-bezier(.22, 1, .36, 1), background .5s ease;
-    }
-
-    .dex-card.show .stat-fill {
-      width: var(--val);
-    }
-
-    .stat-num {
-      font-family: var(--mono);
-      font-size: .7em;
-      color: rgba(43, 35, 48, .5);
-      text-align: right;
-    }
-
-    /* ── EMPTY / TIP ── */
+    /* TIP BOX */
     .dex-tip {
-      margin-top: 60px;
-      padding: 28px 32px;
-      border-radius: 20px;
-      background: var(--type-c);
-      border: 2px dashed var(--type-a);
-      font-size: .9em;
-      color: rgba(43, 35, 48, .65);
-      transition: background .5s ease, border-color .5s ease;
+      margin-top: 52px; padding: 22px 28px; border-radius: 18px;
+      background: var(--tc);
+      border: 1.5px dashed rgba(192,132,252,.4);
+      font-size: .85em; font-weight: 500;
+      color: var(--ink2);
+      transition: background .5s, border-color .5s;
     }
-
     .dex-tip code {
-      font-family: var(--mono);
-      background: rgba(255, 255, 255, .6);
-      padding: 2px 8px;
-      border-radius: 6px;
-      color: var(--dex-ink);
+      font-family: var(--mono); font-size: .88em;
+      background: rgba(255,255,255,.7);
+      padding: 1px 7px; border-radius: 6px; color: var(--ink);
     }
 
-    /* ── FOOTER ── */
+    /* FOOTER */
     footer {
-      padding: 36px 56px;
-      border-top: 1px solid var(--dex-line);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: border-color .6s ease;
+      position: relative; z-index: 1;
+      padding: 32px 52px;
+      border-top: 1px solid var(--border);
+      display: flex; justify-content: space-between; align-items: center;
     }
-
     .footer-logo {
-      font-family: var(--serif);
-      font-style: italic;
-      font-size: 1.1em;
-      color: rgba(43, 35, 48, .28);
-      text-decoration: none;
+      font-family: var(--display); font-weight: 900;
+      font-size: 1em; color: var(--ink3); text-decoration: none;
       transition: color .3s;
     }
-
-    .footer-logo:hover {
-      color: var(--dex-ink);
-    }
-
+    .footer-logo:hover { color: var(--ink); }
     .footer-copy {
-      font-size: .65em;
-      letter-spacing: 2px;
-      color: rgba(43, 35, 48, .25);
-      font-family: var(--mono);
+      font-family: var(--mono); font-size: .58em;
+      letter-spacing: 1.5px; color: var(--ink3);
     }
 
-    /* ── MOBILE ── */
-    @media (max-width:900px) {
-      .dex-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
+    /* ── MODAL ── */
+    .modal-overlay {
+      position: fixed; inset: 0; z-index: 2000;
+      background: rgba(61,43,78,.45);
+      backdrop-filter: blur(20px);
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+      opacity: 0; pointer-events: none;
+      transition: opacity .3s ease;
+    }
+    .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+    /* two-column card — no scroll */
+    .modal {
+      background: var(--surface);
+      border-radius: 28px;
+      width: min(860px, 94vw);
+      position: relative;
+      transform: scale(.92) translateY(24px);
+      transition: transform .42s cubic-bezier(.22,1,.36,1);
+      box-shadow: 0 48px 100px -20px rgba(61,43,78,.32);
+      border: 1.5px solid var(--border);
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      overflow: hidden;
+    }
+    .modal-overlay.open .modal { transform: scale(1) translateY(0); }
+
+    /* LEFT — art panel */
+    .modal-art {
+      position: relative;
+      background: var(--tc);
+      display: flex; align-items: center; justify-content: center;
+      padding: 36px 24px;
+      flex-direction: column;
+      gap: 18px;
+      transition: background .5s;
+      min-height: 440px;
+    }
+    /* soft inner glow */
+    .modal-art::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse at 50% 40%, rgba(255,255,255,.55) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .modal-art img {
+      position: relative; z-index: 1;
+      width: 72%; height: auto; object-fit: contain;
+      filter: drop-shadow(0 18px 32px rgba(61,43,78,.18));
+      transition: transform .55s cubic-bezier(.22,1,.36,1);
+    }
+    .modal-overlay.open .modal-art img { transform: translateY(-8px) scale(1.05); }
+    .modal-art .fallback {
+      position: relative; z-index: 1;
+      font-family: var(--display); font-weight: 900;
+      font-size: 1.6em; color: var(--ta); opacity: .4;
+      text-align: center;
+    }
+    .modal-art-meta {
+      position: relative; z-index: 1;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .modal-num {
+      font-family: var(--mono); font-size: .64em;
+      letter-spacing: 3px; color: var(--ink3);
+    }
+    .modal-types { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
+    .modal-badge-wrap { position: absolute; top: 16px; left: 16px; z-index: 2; }
+    .modal-badge {
+      font-family: var(--body); font-size: .6em; font-weight: 800;
+      letter-spacing: .5px; padding: 4px 11px; border-radius: var(--radius-pill);
+    }
+    .modal-badge.legendary { background: linear-gradient(135deg,#fde68a,#f59e0b); color: #6b3f00; }
+    .modal-badge.mythical  { background: linear-gradient(135deg,#e9d5ff,#a855f7); color: #fff; }
+
+    /* close btn inside art */
+    .modal-close {
+      position: absolute; top: 14px; right: 14px; z-index: 3;
+      width: 32px; height: 32px; border-radius: 50%;
+      background: rgba(255,255,255,.75);
+      backdrop-filter: blur(8px);
+      border: 1px solid var(--border);
+      color: var(--ink); font-size: .9em;
+      cursor: none; display: flex; align-items: center; justify-content: center;
+      transition: background .2s, transform .2s;
+      box-shadow: 0 2px 8px rgba(61,43,78,.1);
+    }
+    .modal-close:hover { background: #fff; transform: scale(1.1); }
+
+    /* RIGHT — info panel */
+    .modal-body {
+      padding: 32px 28px 28px;
+      display: flex; flex-direction: column; justify-content: center;
+      gap: 0;
+      overflow: hidden;
+    }
+    .modal-name {
+      font-family: var(--display); font-weight: 900;
+      font-size: 2em; color: var(--ink);
+      line-height: 1; margin-bottom: 16px;
+    }
+    .modal-desc {
+      font-size: .875em; font-weight: 500;
+      color: var(--ink2); line-height: 1.72;
+      margin-bottom: 22px;
+      padding: 13px 15px;
+      background: var(--tc);
+      border-radius: 12px;
+      border-left: 3px solid var(--ta);
+      transition: background .5s, border-color .5s;
+    }
+    .modal-stats-label {
+      font-family: var(--mono); font-size: .56em;
+      letter-spacing: 2.5px; text-transform: uppercase;
+      color: var(--ink3); margin-bottom: 10px;
+    }
+    .stat-rows { display: flex; flex-direction: column; gap: 8px; }
+    .stat-row {
+      display: grid;
+      grid-template-columns: 42px 1fr 34px;
+      align-items: center; gap: 10px;
+    }
+    .stat-label {
+      font-family: var(--mono); font-size: .56em;
+      letter-spacing: 1px; color: var(--ink3);
+    }
+    .stat-track {
+      height: 7px; border-radius: var(--radius-pill);
+      background: var(--bg2); overflow: hidden;
+    }
+    .stat-fill {
+      height: 100%; border-radius: var(--radius-pill);
+      background: linear-gradient(90deg, var(--ta), var(--tb));
+      width: 0%;
+      transition: width 1s cubic-bezier(.22,1,.36,1) var(--delay, 0s), background .5s;
+    }
+    .modal-overlay.open .stat-fill { width: var(--val); }
+    .stat-num {
+      font-family: var(--mono); font-size: .62em;
+      color: var(--ink2); text-align: right; font-weight: 700;
     }
 
-    @media (max-width:768px) {
+    /* EMPTY STATE */
+    .empty-state {
+      grid-column: 1 / -1;
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--ink3);
+      font-family: var(--display);
+      font-weight: 800;
+      font-size: 1.1em;
+    }
+    .empty-state span { font-size: 2.5em; display: block; margin-bottom: 12px; }
 
-      #cur,
-      #cur-r {
-        display: none;
-      }
-
-      body {
-        cursor: auto;
-      }
-
-      .type-tab {
-        cursor: pointer;
-      }
-
-      .menu-btn {
-        cursor: pointer;
-      }
-
-      nav {
-        padding: 16px 24px;
-      }
-
+    /* MOBILE */
+    @media (max-width: 1200px) { .dex-grid { grid-template-columns: repeat(4,1fr); } }
+    @media (max-width: 960px)  { .dex-grid { grid-template-columns: repeat(3,1fr); } }
+    @media (max-width: 768px) {
+      #cur, #cur-r { display: none; }
+      body { cursor: auto; }
+      .type-tab, .menu-btn, .modal-close, .dex-card { cursor: pointer; }
+      nav { padding: 14px 22px; }
       .nav-links {
-        position: fixed;
-        inset: 0;
-        background: rgba(255, 250, 240, .97);
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 36px;
+        position: fixed; inset: 0;
+        background: rgba(253,246,255,.97);
+        flex-direction: column; justify-content: center; align-items: center;
+        gap: 32px;
         transform: translateX(100%);
-        transition: transform .5s cubic-bezier(.76, 0, .24, 1);
+        transition: transform .5s cubic-bezier(.76,0,.24,1);
         z-index: 490;
       }
-
-      .nav-links.open {
-        transform: translateX(0);
-      }
-
-      .nav-links a {
-        font-size: .9em;
-        letter-spacing: 4px;
-      }
-
-      .menu-btn {
-        display: block;
-      }
-
-      .dex-hero {
-        padding: 110px 24px 40px;
-      }
-
-      .dex-section {
-        padding: 10px 24px 90px;
-      }
-
-      .dex-grid {
-        grid-template-columns: 1fr;
-        gap: 24px;
-      }
-
-      footer {
-        padding: 28px 24px;
-        flex-direction: column;
-        gap: 10px;
-        text-align: center;
-      }
+      .nav-links.open { transform: translateX(0); }
+      .menu-btn { display: block; }
+      .hero { padding: 106px 22px 36px; }
+      .dex-section { padding: 10px 22px 80px; }
+      .dex-grid { grid-template-columns: repeat(2,1fr); gap: 12px; }
+      footer { padding: 24px 22px; flex-direction: column; gap: 8px; text-align: center; }
+      .modal { grid-template-columns: 1fr; max-height: 90vh; overflow-y: auto; }
+      .modal-art { min-height: 220px; border-radius: 24px 24px 0 0; }
+      .modal-body { padding: 20px 20px 24px; }
     }
+    @media (max-width: 400px) { .dex-grid { grid-template-columns: repeat(2,1fr); } }
   </style>
 </head>
-
 <body>
   <div id="cur"></div>
   <div id="cur-r"></div>
 
+  <!-- bg blobs -->
+  <div class="blob blob1"></div>
+  <div class="blob blob2"></div>
+  <div class="blob blob3"></div>
+
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal" id="modal">
+      <!-- LEFT: art -->
+      <div class="modal-art" id="modalArt">
+        <button class="modal-close" id="modalClose">✕</button>
+        <div class="modal-badge-wrap" id="modalBadgeWrap"></div>
+        <img id="modalImg" src="" alt="">
+        <div class="fallback" id="modalFallback" style="display:none"></div>
+        <div class="modal-art-meta">
+          <div class="modal-num" id="modalNum"></div>
+          <div class="modal-types" id="modalTypes"></div>
+        </div>
+      </div>
+      <!-- RIGHT: info -->
+      <div class="modal-body">
+        <div class="modal-name" id="modalName"></div>
+        <p class="modal-desc" id="modalDesc"></p>
+        <div class="modal-stats-label">Base Stats</div>
+        <div class="stat-rows" id="modalStats"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- NAV -->
   <nav>
-    <a href="index.html" class="logo">Puisyaa</a>
+    <a href="index.html" class="logo">Puis<span>yaa</span></a>
     <button class="menu-btn" id="menuBtn">Menu</button>
     <ul class="nav-links" id="navLinks">
       <li><a href="newjeans.html">NewJeans</a></li>
@@ -652,185 +638,291 @@
   </nav>
 
   <!-- HERO -->
-  <section class="dex-hero">
-    <div class="dex-eyebrow">Koleksi Pribadi</div>
-    <h1 class="dex-title">Pokémon <span>favorit</span> aku, dipilah per elemen.</h1>
-    <p class="dex-sub">Starter Gen 1 jadi pembuka. Klik tab elemen untuk mengganti warna, statistik, dan
-      vibe — nanti tambahin sendiri Pokémon lain sesuai elemen favoritmu.</p>
+  <section class="hero">
+    <div class="hero-eyebrow">Koleksi Pribadi</div>
+    <h1 class="hero-title">Pokémon <span class="grad">favorit</span> aku 🌸</h1>
+    <p class="hero-sub">Klik tab elemen buat filter, klik kartu buat lihat detail & stats lengkap.</p>
 
     <div class="type-tabs" id="typeTabs">
-      <button class="type-tab active" data-type="fire"><span class="dot"></span>Fire</button>
-      <button class="type-tab" data-type="water"><span class="dot"></span>Water</button>
-      <button class="type-tab" data-type="grass"><span class="dot"></span>Grass</button>
+      <button class="type-tab active" data-type="all"><span class="dot" style="background:linear-gradient(135deg,#c084fc,#e879f9)"></span>Semua</button>
+      <button class="type-tab" data-type="normal"><span class="dot" style="background:#a8a8a0"></span>Normal</button>
+      <button class="type-tab" data-type="fire"><span class="dot" style="background:linear-gradient(135deg,#fb923c,#ef4444)"></span>Fire</button>
+      <button class="type-tab" data-type="water"><span class="dot" style="background:linear-gradient(135deg,#38bdf8,#6366f1)"></span>Water</button>
+      <button class="type-tab" data-type="grass"><span class="dot" style="background:linear-gradient(135deg,#4ade80,#16a34a)"></span>Grass</button>
+      <button class="type-tab" data-type="electric"><span class="dot" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)"></span>Electric</button>
+      <button class="type-tab" data-type="ice"><span class="dot" style="background:linear-gradient(135deg,#67e8f9,#22d3ee)"></span>Ice</button>
+      <button class="type-tab" data-type="fighting"><span class="dot" style="background:linear-gradient(135deg,#f43f5e,#be123c)"></span>Fighting</button>
+      <button class="type-tab" data-type="poison"><span class="dot" style="background:linear-gradient(135deg,#c084fc,#9333ea)"></span>Poison</button>
+      <button class="type-tab" data-type="ground"><span class="dot" style="background:linear-gradient(135deg,#fb923c,#b45309)"></span>Ground</button>
+      <button class="type-tab" data-type="flying"><span class="dot" style="background:linear-gradient(135deg,#a5b4fc,#818cf8)"></span>Flying</button>
+      <button class="type-tab" data-type="psychic"><span class="dot" style="background:linear-gradient(135deg,#f472b6,#ec4899)"></span>Psychic</button>
+      <button class="type-tab" data-type="bug"><span class="dot" style="background:linear-gradient(135deg,#a3e635,#65a30d)"></span>Bug</button>
+      <button class="type-tab" data-type="rock"><span class="dot" style="background:linear-gradient(135deg,#d4b483,#a07850)"></span>Rock</button>
+      <button class="type-tab" data-type="ghost"><span class="dot" style="background:linear-gradient(135deg,#818cf8,#4f46e5)"></span>Ghost</button>
+      <button class="type-tab" data-type="dragon"><span class="dot" style="background:linear-gradient(135deg,#60a5fa,#2563eb)"></span>Dragon</button>
+      <button class="type-tab" data-type="dark"><span class="dot" style="background:linear-gradient(135deg,#6b7280,#374151)"></span>Dark</button>
+      <button class="type-tab" data-type="steel"><span class="dot" style="background:linear-gradient(135deg,#94a3b8,#475569)"></span>Steel</button>
+      <button class="type-tab" data-type="fairy"><span class="dot" style="background:linear-gradient(135deg,#f9a8d4,#ec4899)"></span>Fairy</button>
     </div>
   </section>
 
-  <!-- DEX GRID -->
+  <!-- GRID -->
   <section class="dex-section">
-    <div class="dex-grid" id="dexGrid">
-      <!-- diisi oleh JS -->
-    </div>
-
+    <div class="dex-grid" id="dexGrid"></div>
     <div class="dex-tip">
-      Taruh gambar Pokémon kamu di folder <code>pokepics/</code> dengan nama file sesuai
-      <code>img</code> pada data di bawah (misal <code>pokepics/charizard.png</code>). Kalau belum ada,
-      kartu akan menampilkan placeholder nama sementara.
+      Taruh gambar Pokémon di folder <code>pokepics/</code> sesuai nama field <code>img</code>
+      (contoh: <code>pokepics/charizard.png</code>). Kalau belum ada, kartu akan menampilkan nama sementara.
     </div>
   </section>
 
   <footer>
     <a href="index.html" class="footer-logo">Puisyaa</a>
-    <span class="footer-copy">© 2025 — Gotta poem 'em all</span>
+    <span class="footer-copy">© 2025 — gotta poem 'em all ✨</span>
   </footer>
 
   <script>
     /* ── CURSOR ── */
     const cur = document.getElementById('cur'), curR = document.getElementById('cur-r');
-    let mx = 0, my = 0, rx = 0, ry = 0;
-    document.addEventListener('mousemove', e => {
-      mx = e.clientX; my = e.clientY;
-      cur.style.left = mx + 'px'; cur.style.top = my + 'px';
-    });
-    (function loop() {
-      rx += (mx - rx) * .1; ry += (my - ry) * .1;
-      curR.style.left = rx + 'px'; curR.style.top = ry + 'px';
-      requestAnimationFrame(loop);
-    })();
-
-    function bindHover() {
-      document.querySelectorAll('a,.type-tab,.dex-card').forEach(el => {
-        el.addEventListener('mouseenter', () => document.body.classList.add('hov'));
-        el.addEventListener('mouseleave', () => document.body.classList.remove('hov'));
+    let mx=0,my=0,rx=0,ry=0;
+    document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+    (function loop(){rx+=(mx-rx)*.1;ry+=(my-ry)*.1;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(loop);})();
+    function bindHover(){
+      document.querySelectorAll('a,.type-tab,.dex-card,.modal-close').forEach(el=>{
+        el.addEventListener('mouseenter',()=>document.body.classList.add('hov'));
+        el.addEventListener('mouseleave',()=>document.body.classList.remove('hov'));
       });
     }
 
-    /* ── NAV MOBILE ── */
-    document.getElementById('menuBtn').addEventListener('click', () =>
-      document.getElementById('navLinks').classList.toggle('open'));
-    document.querySelectorAll('.nav-links a').forEach(a =>
-      a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open')));
+    /* NAV */
+    document.getElementById('menuBtn').addEventListener('click',()=>document.getElementById('navLinks').classList.toggle('open'));
+    document.querySelectorAll('.nav-links a').forEach(a=>a.addEventListener('click',()=>document.getElementById('navLinks').classList.remove('open')));
 
-    /* ── DATA: Starter Gen 1 ── */
-    const POKEMON = {
-      fire: [
-        {
-          num: '#004', name: 'Charmander', tagline: 'Si kadal kecil berekor api, semangatnya nggak pernah padam.',
-          types: ['fire'], img: 'pokepics/charmander.png',
-          stats: { hp: 39, atk: 52, spd: 65 }
-        },
-        {
-          num: '#006', name: 'Charizard', tagline: 'Evolusi puncak — naga api yang terbang membawa nyala oranye-emas.',
-          types: ['fire'], img: 'pokepics/charizard.png',
-          stats: { hp: 78, atk: 84, spd: 100 }
-        },
-        {
-          num: '#059', name: 'Arcanine', tagline: 'Legendaris dalam mitos, larinya secepat angin yang membara.',
-          types: ['fire'], img: 'pokepics/arcanine.png',
-          stats: { hp: 90, atk: 110, spd: 95 }
-        },
-      ],
-      water: [
-        {
-          num: '#007', name: 'Squirtle', tagline: 'Kura-kura kecil bercangkang biru, tenang tapi bisa nyemprot kuat.',
-          types: ['water'], img: 'pokepics/squirtle.png',
-          stats: { hp: 44, atk: 48, spd: 43 }
-        },
-        {
-          num: '#009', name: 'Blastoise', tagline: 'Cangkangnya jadi meriam air — pertahanan sekokoh benteng laut.',
-          types: ['water'], img: 'pokepics/blastoise.png',
-          stats: { hp: 79, atk: 83, spd: 78 }
-        },
-        {
-          num: '#131', name: 'Lapras', tagline: 'Penjelajah lautan yang lembut, suka membawa teman menyeberangi ombak.',
-          types: ['water'], img: 'pokepics/lapras.png',
-          stats: { hp: 130, atk: 85, spd: 60 }
-        },
-      ],
-      grass: [
-        {
-          num: '#001', name: 'Bulbasaur', tagline: 'Benih di punggungnya menyimpan energi kehidupan yang tenang.',
-          types: ['grass'], img: 'pokepics/bulbasaur.png',
-          stats: { hp: 45, atk: 49, spd: 45 }
-        },
-        {
-          num: '#003', name: 'Venusaur', tagline: 'Bunga raksasa mekar penuh — aroma manisnya menenangkan sekitarnya.',
-          types: ['grass'], img: 'pokepics/venusaur.png',
-          stats: { hp: 80, atk: 82, spd: 80 }
-        },
-        {
-          num: '#182', name: 'Bellossom', tagline: 'Menari di bawah matahari, kelopaknya secerah taman musim semi.',
-          types: ['grass'], img: 'pokepics/bellossom.png',
-          stats: { hp: 60, atk: 70, spd: 50 }
-        },
-      ],
-    };
+    /* ── POKEMON DATA ── */
+    const POKEMON = [
+      { num:'#004', name:'Charmander', tagline:'Si kadal kecil berekor api, semangatnya nggak pernah padam.',
+        desc:'Charmander hidup di pegunungan berbatu yang panas. Nyala di ujung ekornya mencerminkan kondisi kesehatannya — makin kecil nyalanya, makin lemah tubuhnya.',
+        types:['fire'], img:'pokepics/charmander.png',
+        stats:{HP:39,ATK:52,DEF:43,SpA:60,SpD:50,SPD:65} },
+      { num:'#006', name:'Charizard', tagline:'Naga api yang terbang membawa nyala oranye-emas.',
+        desc:'Charizard terbang di langit mencari lawan setangguh dirinya. Ketika marah, napasnya mampu melelehkan batu. Ikonik sejak Gen 1.',
+        types:['fire','flying'], img:'pokepics/charizard.png',
+        stats:{HP:78,ATK:84,DEF:78,SpA:109,SpD:85,SPD:100} },
+      { num:'#059', name:'Arcanine', tagline:'Legendaris dalam mitos, larinya secepat angin yang membara.',
+        desc:'Arcanine dikenal sebagai Pokémon Legendaris dalam mitologi Timur. Ia bisa berlari 10.000 km sehari dengan bulu yang membara indah.',
+        types:['fire'], img:'pokepics/arcanine.png',
+        stats:{HP:90,ATK:110,DEF:80,SpA:100,SpD:80,SPD:95} },
+      { num:'#007', name:'Squirtle', tagline:'Kura-kura bercangkang biru, tenang tapi bisa nyemprot kuat.',
+        desc:'Squirtle menyemburkan air dengan presisi tinggi. Cangkangnya yang bulat juga membantu aerodinamika saat berenang kencang.',
+        types:['water'], img:'pokepics/squirtle.png',
+        stats:{HP:44,ATK:48,DEF:65,SpA:50,SpD:64,SPD:43} },
+      { num:'#009', name:'Blastoise', tagline:'Cangkangnya jadi meriam air — sekokoh benteng laut.',
+        desc:'Meriam air di cangkang Blastoise bisa menembus baja tebal. Beratnya yang masif membuatnya hampir tak bergeser saat menyerang.',
+        types:['water'], img:'pokepics/blastoise.png',
+        stats:{HP:79,ATK:83,DEF:100,SpA:85,SpD:105,SPD:78} },
+      { num:'#131', name:'Lapras', tagline:'Penjelajah lautan yang lembut, suka membawa teman menyeberang.',
+        desc:'Lapras berkomunikasi lewat melodi indah di lautan. Dulu hampir punah karena diburu berlebihan, kini populasinya perlahan pulih.',
+        types:['water','ice'], img:'pokepics/lapras.png',
+        stats:{HP:130,ATK:85,DEF:80,SpA:85,SpD:95,SPD:60} },
+      { num:'#001', name:'Bulbasaur', tagline:'Benih di punggungnya menyimpan energi kehidupan.',
+        desc:'Sejak lahir, Bulbasaur membawa benih di punggungnya yang tumbuh seiring waktu. Benih ini menyerap sinar matahari menjadi energi.',
+        types:['grass','poison'], img:'pokepics/bulbasaur.png',
+        stats:{HP:45,ATK:49,DEF:49,SpA:65,SpD:65,SPD:45} },
+      { num:'#003', name:'Venusaur', tagline:'Bunga raksasa mekar penuh — aromanya menenangkan sekitarnya.',
+        desc:'Bunga di punggung Venusaur menyerap sinar matahari dan mengubahnya menjadi energi. Aromanya sangat menenangkan dan meredakan amarah.',
+        types:['grass','poison'], img:'pokepics/venusaur.png',
+        stats:{HP:80,ATK:82,DEF:83,SpA:100,SpD:100,SPD:80} },
+      { num:'#182', name:'Bellossom', tagline:'Menari di bawah matahari, kelopaknya secerah taman musim semi.',
+        desc:'Bellossom lahir dari Gloom yang kehilangan bau busuknya. Semakin banyak sinar matahari, semakin cerah warna kelopaknya.',
+        types:['grass'], img:'pokepics/bellossom.png',
+        stats:{HP:60,ATK:70,DEF:65,SpA:90,SpD:90,SPD:55} },
+      { num:'#025', name:'Pikachu', tagline:'Maskot dunia, petir kecil yang selalu ceria.',
+        desc:'Pikachu menyimpan listrik di kantong pipinya yang merah. Saat senang, terkadang melepas percikan kecil tanpa sengaja.',
+        types:['electric'], img:'pokepics/pikachu.png',
+        stats:{HP:35,ATK:55,DEF:40,SpA:50,SpD:50,SPD:90} },
+      { num:'#135', name:'Jolteon', tagline:'Setiap bulu adalah jarum listrik yang siap menyengat.',
+        desc:'Bulu Jolteon bisa mengandung listrik statis hingga 10.000 volt. Saat marah, bulunya berdiri dan melepaskan ribuan percikan sekaligus.',
+        types:['electric'], img:'pokepics/jolteon.png',
+        stats:{HP:65,ATK:65,DEF:60,SpA:110,SpD:95,SPD:130} },
+      { num:'#150', name:'Mewtwo', tagline:'Ciptaan sains yang melampaui batasnya sendiri.',
+        desc:'Mewtwo diciptakan melalui rekayasa genetika menggunakan DNA Mew. Kekuatan psikisnya bisa menghancurkan bangunan hanya dengan pikiran.',
+        types:['psychic'], img:'pokepics/mewtwo.png', rarity:'legendary',
+        stats:{HP:106,ATK:110,DEF:90,SpA:154,SpD:90,SPD:130} },
+      { num:'#196', name:'Espeon', tagline:'Indra keenam yang membaca angin, cuaca, dan pikiranmu.',
+        desc:'Espeon mengembangkan kemampuan psikisnya untuk melindungi Trainer tercintanya. Bulunya mendeteksi perubahan udara sekecil apapun.',
+        types:['psychic'], img:'pokepics/espeon.png',
+        stats:{HP:65,ATK:65,DEF:60,SpA:130,SpD:95,SPD:110} },
+      { num:'#280', name:'Ralts', tagline:'Merasakan emosi manusia lewat tanduk kecil di kepalanya.',
+        desc:'Ralts sangat sensitif terhadap emosi manusia. Saat ada orang bahagia di sekitarnya, tanduknya bersinar dan ia ikut bahagia.',
+        types:['psychic','fairy'], img:'pokepics/ralts.png',
+        stats:{HP:28,ATK:25,DEF:25,SpA:45,SpD:35,SPD:40} },
+      { num:'#094', name:'Gengar', tagline:'Bayangan yang tertinggal saat matahari terbenam.',
+        desc:'Gengar bersembunyi dalam kegelapan dan menurunkan suhu ruangan saat mendekat. Konon ia adalah bayangan manusia yang tersesat.',
+        types:['ghost','poison'], img:'pokepics/gengar.png',
+        stats:{HP:60,ATK:65,DEF:60,SpA:130,SpD:75,SPD:110} },
+      { num:'#778', name:'Mimikyu', tagline:'Hidup dalam kostum Pikachu karena rindu dicintai.',
+        desc:'Mimikyu memakai kostum menyerupai Pikachu agar bisa diterima manusia. Tubuh aslinya tersembunyi rapat karena terlalu menakutkan untuk dilihat.',
+        types:['ghost','fairy'], img:'pokepics/mimikyu.png',
+        stats:{HP:55,ATK:90,DEF:80,SpA:50,SpD:105,SPD:96} },
+      { num:'#149', name:'Dragonite', tagline:'Naga laut yang menyelamatkan kapal karam di lautan badai.',
+        desc:'Dragonite bisa terbang mengelilingi bumi dalam 16 jam. Ia dikenal baik hati dan sering menyelamatkan manusia dari bencana laut.',
+        types:['dragon','flying'], img:'pokepics/dragonite.png',
+        stats:{HP:91,ATK:134,DEF:95,SpA:100,SpD:100,SPD:80} },
+      { num:'#445', name:'Garchomp', tagline:'Jet tempur dari dunia Pokémon — terbang di atas kecepatan suara.',
+        desc:'Garchomp terbang sekencang pesawat jet sambil mengincar mangsa dari udara. Siripnya yang tajam bisa membelah batu karang.',
+        types:['dragon','ground'], img:'pokepics/garchomp.png',
+        stats:{HP:108,ATK:130,DEF:95,SpA:80,SpD:85,SPD:102} },
+      { num:'#197', name:'Umbreon', tagline:'Cincin kuning bersinar di malam hari — penjaga kegelapan yang setia.',
+        desc:'Umbreon berevolusi ketika Eevee sangat dekat dengan Trainer-nya di malam hari. Cincin kuning di tubuhnya bersinar saat marah atau dalam gelap total.',
+        types:['dark'], img:'pokepics/umbreon.png',
+        stats:{HP:95,ATK:65,DEF:110,SpA:60,SpD:130,SPD:65} },
+      { num:'#359', name:'Absol', tagline:'Datang sebelum bencana — dianggap pembawa sial, padahal penyelamat.',
+        desc:'Absol muncul sebelum bencana alam terjadi bukan karena menyebabkannya, melainkan karena bisa merasakannya lebih dulu.',
+        types:['dark'], img:'pokepics/absol.png',
+        stats:{HP:65,ATK:130,DEF:60,SpA:75,SpD:60,SPD:75} },
+      { num:'#700', name:'Sylveon', tagline:'Pita-pita lembutnya bisa menjinakkan Pokémon paling ganas.',
+        desc:'Sylveon melilitkan pita-pita halus di tangan Trainer-nya saat berjalan. Pita itu memancarkan aura menenangkan yang mampu menghentikan perkelahian.',
+        types:['fairy'], img:'pokepics/sylveon.png',
+        stats:{HP:95,ATK:65,DEF:65,SpA:110,SpD:130,SPD:60} },
+      { num:'#035', name:'Clefairy', tagline:'Di bawah cahaya bulan purnama, Clefairy menari bersama.',
+        desc:'Clefairy hanya muncul di pegunungan sunyi saat bulan purnama. Konon mereka datang dari luar angkasa — daya apung alaminya mendukung teori itu.',
+        types:['fairy'], img:'pokepics/clefairy.png',
+        stats:{HP:70,ATK:45,DEF:48,SpA:60,SpD:65,SPD:35} },
+      { num:'#384', name:'Rayquaza', tagline:'Penguasa langit yang hidup di lapisan ozon bumi.',
+        desc:'Rayquaza hidup di atmosfer atas bumi sejak ratusan juta tahun lalu. Ia memakan meteorit dan partikel di stratosfer.',
+        types:['dragon','flying'], img:'pokepics/rayquaza.png', rarity:'legendary',
+        stats:{HP:105,ATK:150,DEF:90,SpA:150,SpD:90,SPD:95} },
+      { num:'#144', name:'Articuno', tagline:'Napasnya membekukan udara — pembawa badai salju abadi.',
+        desc:'Articuno terbang di atas pegunungan tertinggi. Kepakan sayapnya membekukan uap air dan menciptakan badai salju, namun konon ia menyelamatkan pendaki tersesat.',
+        types:['ice','flying'], img:'pokepics/articuno.png', rarity:'legendary',
+        stats:{HP:90,ATK:85,DEF:100,SpA:95,SpD:125,SPD:85} },
+      { num:'#151', name:'Mew', tagline:'DNA semua Pokémon tersimpan dalam satu makhluk pink kecil.',
+        desc:'Mew diyakini sebagai leluhur semua Pokémon karena DNA-nya mengandung kode genetik seluruh spesies. Ia bisa menggunakan semua gerakan dan sangat pemain.',
+        types:['psychic'], img:'pokepics/mew.png', rarity:'mythical',
+        stats:{HP:100,ATK:100,DEF:100,SpA:100,SpD:100,SPD:100} },
+      { num:'#251', name:'Celebi', tagline:'Peri waktu yang menjaga hutan dari masa ke masa.',
+        desc:'Celebi berkelana lintas waktu dan hanya muncul di era yang penuh kedamaian. Di mana ia singgah, tumbuhan tumbuh subur luar biasa.',
+        types:['psychic','grass'], img:'pokepics/celebi.png', rarity:'mythical',
+        stats:{HP:100,ATK:100,DEF:100,SpA:100,SpD:100,SPD:100} },
+    ];
 
+    /* TYPE THEMES — subtle pastel per type, color modifies blobs & accents */
     const TYPE_THEME = {
-      fire: { a: '#ff6b4a', b: '#ffb14e', c: '#fff1e6', shadow: 'rgba(255,107,74,.25)' },
-      water: { a: '#3aa6ff', b: '#7fe3ff', c: '#e8f7ff', shadow: 'rgba(58,166,255,.25)' },
-      grass: { a: '#4cb963', b: '#b6e388', c: '#eefbe9', shadow: 'rgba(76,185,99,.25)' },
+      all:      { a:'#c084fc', b:'#e879f9', c:'#fdf4ff', sh:'rgba(192,132,252,.28)' },
+      normal:   { a:'#9ca3af', b:'#d1d5db', c:'#f9fafb', sh:'rgba(156,163,175,.25)' },
+      fire:     { a:'#f97316', b:'#fb923c', c:'#fff7ed', sh:'rgba(249,115,22,.25)' },
+      water:    { a:'#3b82f6', b:'#7dd3fc', c:'#eff6ff', sh:'rgba(59,130,246,.25)' },
+      grass:    { a:'#22c55e', b:'#86efac', c:'#f0fdf4', sh:'rgba(34,197,94,.25)' },
+      electric: { a:'#eab308', b:'#fde047', c:'#fefce8', sh:'rgba(234,179,8,.25)' },
+      ice:      { a:'#06b6d4', b:'#67e8f9', c:'#ecfeff', sh:'rgba(6,182,212,.25)' },
+      fighting: { a:'#e11d48', b:'#fb7185', c:'#fff1f2', sh:'rgba(225,29,72,.25)' },
+      poison:   { a:'#a855f7', b:'#d8b4fe', c:'#faf5ff', sh:'rgba(168,85,247,.25)' },
+      ground:   { a:'#d97706', b:'#fcd34d', c:'#fffbeb', sh:'rgba(217,119,6,.25)' },
+      flying:   { a:'#818cf8', b:'#c7d2fe', c:'#eef2ff', sh:'rgba(129,140,248,.25)' },
+      psychic:  { a:'#ec4899', b:'#f9a8d4', c:'#fdf2f8', sh:'rgba(236,72,153,.25)' },
+      bug:      { a:'#65a30d', b:'#bef264', c:'#f7fee7', sh:'rgba(101,163,13,.25)' },
+      rock:     { a:'#a07850', b:'#d4b483', c:'#fdf8f0', sh:'rgba(160,120,80,.25)' },
+      ghost:    { a:'#6366f1', b:'#a5b4fc', c:'#eef2ff', sh:'rgba(99,102,241,.25)' },
+      dragon:   { a:'#2563eb', b:'#93c5fd', c:'#eff6ff', sh:'rgba(37,99,235,.25)' },
+      dark:     { a:'#6b7280', b:'#9ca3af', c:'#f9fafb', sh:'rgba(107,114,128,.25)' },
+      steel:    { a:'#475569', b:'#94a3b8', c:'#f8fafc', sh:'rgba(71,85,105,.25)' },
+      fairy:    { a:'#ec4899', b:'#f9a8d4', c:'#fdf2f8', sh:'rgba(236,72,153,.25)' },
     };
 
     const root = document.documentElement;
     const grid = document.getElementById('dexGrid');
+    const maxStat = 160;
+
+    function applyTheme(type) {
+      const t = TYPE_THEME[type] || TYPE_THEME.all;
+      root.style.setProperty('--ta', t.a);
+      root.style.setProperty('--tb', t.b);
+      root.style.setProperty('--tc', t.c);
+      root.style.setProperty('--tsh', t.sh);
+    }
 
     function renderGrid(type) {
       grid.innerHTML = '';
-      POKEMON[type].forEach((p, i) => {
-        const maxStat = 150;
+      const list = type === 'all' ? POKEMON : POKEMON.filter(p => p.types.includes(type));
+      if (!list.length) {
+        grid.innerHTML = '<div class="empty-state"><span>🌸</span>Belum ada Pokémon tipe ini!</div>';
+        return;
+      }
+      list.forEach((p, i) => {
         const card = document.createElement('div');
-        card.className = 'dex-card';
-        card.dataset.num = p.num;
+        card.className = 'dex-card' + (p.rarity ? ' ' + p.rarity : '');
         card.innerHTML = `
-          <div class="dex-card-art">
-            <img src="${p.img}" alt="${p.name}" loading="lazy"
-              onerror="this.remove(); this.parentNode.querySelector('.fallback').style.display='flex';">
-            <div class="fallback" style="display:none; height:100%; align-items:center; justify-content:center;">${p.name}</div>
+          <div class="card-num">${p.num}</div>
+          <div class="card-badge">${p.rarity === 'legendary' ? '★ Legendary' : '✦ Mythical'}</div>
+          <div class="card-art">
+            <img src="${p.img}" alt="${p.name}" loading="lazy">
+            <div class="fallback" style="display:none">${p.name}</div>
           </div>
-          <div class="dex-card-name">${p.name}</div>
-          <div class="dex-card-tagline">${p.tagline}</div>
-          <div class="dex-card-types">
-            ${p.types.map(t => `<span class="type-pill ${t}">${t}</span>`).join('')}
-          </div>
-          <div class="dex-stats">
-            <div class="stat-row">
-              <span class="stat-label">HP</span>
-              <div class="stat-track"><div class="stat-fill" style="--val:${(p.stats.hp / maxStat) * 100}%"></div></div>
-              <span class="stat-num">${p.stats.hp}</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">ATK</span>
-              <div class="stat-track"><div class="stat-fill" style="--val:${(p.stats.atk / maxStat) * 100}%"></div></div>
-              <span class="stat-num">${p.stats.atk}</span>
-            </div>
-            <div class="stat-row">
-              <span class="stat-label">SPD</span>
-              <div class="stat-track"><div class="stat-fill" style="--val:${(p.stats.spd / maxStat) * 100}%"></div></div>
-              <span class="stat-num">${p.stats.spd}</span>
-            </div>
-          </div>
-        `;
-        // fallback handler perlu fungsi karena .remove() di onerror bikin querySelector gagal
-        card.querySelector('img').addEventListener('error', function () {
-          this.style.display = 'none';
-          this.parentNode.querySelector('.fallback').style.display = 'flex';
+          <div class="card-name">${p.name}</div>
+          <div class="card-types">${p.types.map(t=>`<span class="type-pill ${t}">${t}</span>`).join('')}</div>`;
+        card.querySelector('img').addEventListener('error', function(){
+          this.style.display='none';
+          this.parentNode.querySelector('.fallback').style.display='flex';
         });
+        card.addEventListener('click', () => openModal(p));
         grid.appendChild(card);
-        requestAnimationFrame(() => {
-          setTimeout(() => card.classList.add('show'), i * 90);
-        });
+        requestAnimationFrame(() => setTimeout(() => card.classList.add('show'), i * 60));
       });
       bindHover();
     }
 
-    function applyTheme(type) {
-      const t = TYPE_THEME[type];
-      root.style.setProperty('--type-a', t.a);
-      root.style.setProperty('--type-b', t.b);
-      root.style.setProperty('--type-c', t.c);
-      root.style.setProperty('--type-shadow', t.shadow);
+    /* MODAL */
+    const overlay   = document.getElementById('modalOverlay');
+    const modalArt  = document.getElementById('modalArt');
+    const modalImg  = document.getElementById('modalImg');
+    const modalFb   = document.getElementById('modalFallback');
+    const modalBadge= document.getElementById('modalBadgeWrap');
+    const modalNum  = document.getElementById('modalNum');
+    const modalName = document.getElementById('modalName');
+    const modalTypes= document.getElementById('modalTypes');
+    const modalDesc = document.getElementById('modalDesc');
+    const modalStats= document.getElementById('modalStats');
+
+    function openModal(p) {
+      modalImg.src = p.img; modalImg.alt = p.name; modalImg.style.display = '';
+      modalFb.style.display = 'none'; modalFb.textContent = p.name;
+      modalImg.onerror = () => { modalImg.style.display='none'; modalFb.style.display='flex'; };
+
+      modalArt.className = 'modal-art' + (p.rarity ? ' '+p.rarity : '');
+      modalBadge.innerHTML = p.rarity
+        ? `<span class="modal-badge ${p.rarity}">${p.rarity==='legendary'?'★ Legendary':'✦ Mythical'}</span>`
+        : '';
+
+      modalNum.textContent = p.num;
+      modalName.textContent = p.name;
+      modalTypes.innerHTML = p.types.map(t=>`<span class="type-pill ${t}">${t}</span>`).join('');
+      modalDesc.textContent = p.desc;
+
+      modalStats.innerHTML = '';
+      Object.entries(p.stats).forEach(([label,val], idx) => {
+        const pct = ((val/maxStat)*100).toFixed(1);
+        const row = document.createElement('div');
+        row.className = 'stat-row';
+        row.innerHTML = `
+          <span class="stat-label">${label}</span>
+          <div class="stat-track"><div class="stat-fill" style="--val:${pct}%;--delay:${idx*0.08}s"></div></div>
+          <span class="stat-num">${val}</span>`;
+        modalStats.appendChild(row);
+      });
+
+      document.body.classList.add('modal-open');
+      overlay.classList.add('open');
     }
 
+    function closeModal() {
+      overlay.classList.remove('open');
+      document.body.classList.remove('modal-open');
+    }
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    overlay.addEventListener('click', e => { if (e.target === overlay) closeModal(); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+    /* TABS */
     document.querySelectorAll('.type-tab').forEach(tab => {
       tab.addEventListener('click', () => {
         document.querySelectorAll('.type-tab').forEach(b => b.classList.remove('active'));
@@ -841,11 +933,10 @@
       });
     });
 
-    /* init */
-    applyTheme('fire');
-    renderGrid('fire');
+    /* INIT */
+    applyTheme('all');
+    renderGrid('all');
     bindHover();
   </script>
 </body>
-
 </html>
