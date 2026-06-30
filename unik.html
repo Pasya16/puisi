@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Unik</title>
+    <link rel="icon" type="image/png" href="picture/logo.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
@@ -192,7 +193,7 @@
       transition: height 0.2s ease;
     }
 
-    .progress-track:hover { height: 3px; }
+    .progress-track:hover { height: 4px; } /* Dipertebal sedikit agar pembatas terlihat kokoh saat di-hover */
 
     .progress-fill {
       height: 100%;
@@ -214,9 +215,23 @@
       opacity: 0;
       transition: opacity 0.2s ease, left 0.1s linear;
       pointer-events: none;
+      z-index: 3;
     }
 
     .progress-track:hover .progress-thumb { opacity: 1; }
+
+    /* //penanda musik : Pengaturan gaya visual garis pembatas reff */
+    .progress-marker {
+      position: absolute;
+      top: -3px;              /* Sedikit lebih tinggi dari track agar terlihat menonjol */
+      bottom: -3px;
+      width: 3px;             /* Ketebalan garis pembatas */
+      background-color: var(--accent); /* Menggunakan warna emas bawaan template kamu */
+      box-shadow: 0 0 6px var(--accent); /* Efek glow tipis */
+      z-index: 2;
+      pointer-events: none;
+      display: block;
+    }
 
     .player-controls {
       max-width: 580px;
@@ -384,6 +399,8 @@
     <div class="progress-track" id="progressTrack">
       <div class="progress-fill" id="progressFill"></div>
       <div class="progress-thumb" id="progressThumb"></div>
+      <!-- //penanda musik : Struktur HTML untuk garis pembatas di progress bar -->
+      <div class="progress-marker" id="progressMarker"></div>
     </div>
     <div class="player-controls">
       <button class="player-btn play-btn" id="playBtn" title="Play / Pause">
@@ -397,7 +414,7 @@
       </button>
 
       <div class="player-info">
-        <div class="player-song" id="songName">— musik —</div>
+        <div class="player-song" id="songName"> Shape of My Heart | Backstreet Boys</div>
         <div class="player-time" id="timeDisplay">0:00 / 0:00</div>
       </div>
 
@@ -414,7 +431,7 @@
   </div>
 
   <audio id="audio" loop>
-    <source src="musik/Bittersweet.mp3" type="audio/mpeg">
+    <source src="musik/ShapeOfMyHeart.mp3" type="audio/mpeg">
   </audio>
 
   <script>
@@ -437,6 +454,7 @@
     const progressFill = document.getElementById('progressFill');
     const progressThumb = document.getElementById('progressThumb');
     const progressTrack = document.getElementById('progressTrack');
+    const progressMarker = document.getElementById('progressMarker');
     const timeDisplay = document.getElementById('timeDisplay');
     const songName = document.getElementById('songName');
     const volumeSlider = document.getElementById('volumeSlider');
@@ -444,7 +462,11 @@
 
     let isPlaying = false;
     let prevVolume = 0.8;
+    let hasStartedFromReff = false;
     audio.volume = 0.8;
+
+    // //penanda musik : TENTUKAN DETIK REFF DI SINI (Ganti angka 50 dengan detik pilihanmu)
+    const REFF_START_TIME = 169; 
 
     function fmt(s) {
       return `${Math.floor(s/60)}:${Math.floor(s%60).toString().padStart(2,'0')}`;
@@ -456,8 +478,16 @@
       iconPause.style.display = state ? 'block' : 'none';
     }
 
+    function playFromHighlight() {
+      if (!hasStartedFromReff) {
+        audio.currentTime = REFF_START_TIME;
+        hasStartedFromReff = true;
+      }
+      audio.play().then(() => setPlaying(true)).catch(()=>{});
+    }
+
     playBtn.addEventListener('click', () => {
-      isPlaying ? audio.pause() : audio.play().then(() => setPlaying(true)).catch(()=>{});
+      isPlaying ? audio.pause() : playFromHighlight();
     });
 
     audio.addEventListener('play', () => setPlaying(true));
@@ -469,17 +499,32 @@
       progressFill.style.width = pct + '%';
       progressThumb.style.left = pct + '%';
       timeDisplay.textContent = `${fmt(audio.currentTime)} / ${fmt(audio.duration)}`;
+      
+      // //penanda musik : Logika matematika untuk menempatkan letak garis pembatas di track secara akurat
+      const markerPct = (REFF_START_TIME / audio.duration) * 100;
+      if (markerPct <= 100) {
+        progressMarker.style.left = markerPct + '%';
+      }
     });
 
     audio.addEventListener('loadedmetadata', () => {
       const src = audio.currentSrc || '';
       const name = src.split('/').pop().replace(/\.[^.]+$/, '').replace(/[-_]/g, ' ');
       if (name) songName.textContent = name;
+      
+      // //penanda musik : Memastikan penanda langsung terplot posisinya saat file audio pertama kali dimuat browser
+      const markerPct = (REFF_START_TIME / audio.duration) * 100;
+      if (markerPct <= 100) {
+        progressMarker.style.left = markerPct + '%';
+      }
     });
 
     progressTrack.addEventListener('click', (e) => {
       const rect = progressTrack.getBoundingClientRect();
-      if (audio.duration) audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+      if (audio.duration) {
+        audio.currentTime = ((e.clientX - rect.left) / rect.width) * audio.duration;
+        hasStartedFromReff = true;
+      }
     });
 
     volumeSlider.addEventListener('input', () => {
@@ -498,8 +543,10 @@
       }
     });
 
-    document.addEventListener('click', () => {
-      if (!isPlaying) audio.play().then(() => setPlaying(true)).catch(()=>{});
+    document.addEventListener('click', (e) => {
+      if (!isPlaying && !e.target.closest('#player')) {
+        playFromHighlight();
+      }
     }, { once: true });
   </script>
 </body>

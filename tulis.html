@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Tulis — Puisyaa</title>
+<link rel="icon" type="image/png" href="picture/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap">
+<style>
+  *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --ink:#2a3347; --cream:#f0f4fa;
+    --serif:'Cormorant Garamond',Georgia,serif;
+    --sans:'Jost',system-ui,sans-serif;
+  }
+  body{
+    background:var(--cream); color:var(--ink); font-family:var(--sans);
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:80px 24px 60px;
+  }
+  .wrap{ width:100%; max-width:560px; }
+  a.back{
+    font-size:.7em; letter-spacing:2px; text-transform:uppercase;
+    color:rgba(42,51,71,.45); text-decoration:none; display:inline-block; margin-bottom:32px;
+  }
+  a.back:hover{ color:var(--ink); }
+  h1{
+    font-family:var(--serif); font-style:italic; font-weight:300;
+    font-size:clamp(2.4em,7vw,3.4em); margin-bottom:8px;
+  }
+  .sub{ font-size:.85em; color:rgba(42,51,71,.5); margin-bottom:40px; font-weight:300; }
+
+  /* setup box */
+  .setup{
+    background:#fff; border-radius:6px; padding:22px 24px; margin-bottom:28px;
+    border:1px solid rgba(42,51,71,.08);
+  }
+  .setup.hidden{ display:none; }
+  .setup-label{
+    font-size:.62em; letter-spacing:2px; text-transform:uppercase;
+    color:rgba(42,51,71,.4); margin-bottom:10px; display:block;
+  }
+  .setup p{ font-size:.78em; color:rgba(42,51,71,.55); line-height:1.7; margin-bottom:14px; font-weight:300; }
+  .setup a{ color:#7b8fd4; }
+
+  label{
+    font-size:.62em; letter-spacing:2px; text-transform:uppercase;
+    color:rgba(42,51,71,.4); display:block; margin-bottom:8px; margin-top:22px;
+  }
+  label:first-of-type{ margin-top:0; }
+
+  input[type=text], input[type=password], textarea, select{
+    width:100%; border:1px solid rgba(42,51,71,.12); background:#fff;
+    border-radius:4px; padding:13px 14px; font-family:var(--sans);
+    font-size:.92em; color:var(--ink); outline:none; transition:border-color .25s;
+  }
+  input[type=text]:focus, input[type=password]:focus, textarea:focus, select:focus{
+    border-color:#9fb3e8;
+  }
+  textarea{ min-height:160px; resize:vertical; line-height:1.8; }
+
+  select{ cursor:pointer; appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%232a3347' opacity='.4'/%3E%3C/svg%3E");
+    background-repeat:no-repeat; background-position:right 14px center;
+  }
+
+  .row{ display:flex; gap:14px; }
+  .row > div{ flex:1; }
+
+  button{
+    width:100%; margin-top:30px; padding:15px; border:none; border-radius:4px;
+    background:var(--ink); color:var(--cream); font-family:var(--sans);
+    font-size:.78em; letter-spacing:2px; text-transform:uppercase;
+    cursor:pointer; transition:opacity .25s, transform .15s;
+  }
+  button:hover{ opacity:.88; }
+  button:active{ transform:scale(.99); }
+  button:disabled{ opacity:.5; cursor:default; }
+
+  .msg{
+    margin-top:18px; font-size:.78em; padding:13px 16px; border-radius:4px;
+    display:none; font-weight:300; line-height:1.6;
+  }
+  .msg.show{ display:block; }
+  .msg.ok{ background:rgba(146,212,160,.18); color:#3a6b46; }
+  .msg.err{ background:rgba(244,167,185,.18); color:#9c3a4f; }
+
+  .link-edit{
+    font-size:.68em; color:rgba(42,51,71,.35); text-decoration:underline;
+    cursor:pointer; margin-top:6px; display:inline-block;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="curcol.html" class="back">← Kembali ke Curcol</a>
+  <h1>Tulis sesuatu</h1>
+  <p class="sub">Hal kecil yang pengen disimpan, langsung dari sini.</p>
+
+  <!-- SETUP TOKEN -->
+  <div class="setup" id="setupBox">
+    <span class="setup-label">Setup (sekali aja)</span>
+    <p>
+      Tempel Personal Access Token GitHub kamu di bawah. Token ini tersimpan
+      di browser kamu sendiri (localStorage), gak dikirim kemana-mana selain
+      ke GitHub. Bikin token di
+      <a href="https://github.com/settings/tokens" target="_blank">github.com/settings/tokens</a>
+      → Generate new token (classic) → centang permission <code>repo</code>.
+    </p>
+    <label>Personal Access Token</label>
+    <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx">
+    <button id="saveTokenBtn" style="margin-top:16px;">Simpan Token</button>
+  </div>
+
+  <span class="link-edit" id="editTokenLink" style="display:none;">ubah token</span>
+
+  <!-- FORM -->
+  <form id="curcolForm">
+    <label>Judul</label>
+    <input type="text" id="title" placeholder="cth. Hari yang biasa aja" required>
+
+    <label>Isi curhatan</label>
+    <textarea id="body" placeholder="tulis apa aja yang lagi dipikirin..." required></textarea>
+
+    <div class="row">
+      <div>
+        <label>Tag</label>
+        <select id="tag">
+          <option value="kenangan">kenangan</option>
+          <option value="hari-hari" selected>hari-hari</option>
+          <option value="perasaan">perasaan</option>
+          <option value="malam">malam</option>
+          <option value="random">random</option>
+          <option value="self-note">self-note</option>
+        </select>
+      </div>
+    </div>
+
+    <button type="submit" id="submitBtn">Simpan Curhatan</button>
+    <div class="msg" id="msgBox"></div>
+  </form>
+</div>
+
+<script>
+  const REPO_OWNER = 'Pasya16';
+  const REPO_NAME  = 'puisi';
+
+  const setupBox = document.getElementById('setupBox');
+  const editTokenLink = document.getElementById('editTokenLink');
+  const tokenInput = document.getElementById('tokenInput');
+  const saveTokenBtn = document.getElementById('saveTokenBtn');
+  const form = document.getElementById('curcolForm');
+  const submitBtn = document.getElementById('submitBtn');
+  const msgBox = document.getElementById('msgBox');
+
+  function getToken(){ return localStorage.getItem('gh_token') || ''; }
+
+  function refreshSetupUI(){
+    if (getToken()) {
+      setupBox.classList.add('hidden');
+      editTokenLink.style.display = 'inline-block';
+    } else {
+      setupBox.classList.remove('hidden');
+      editTokenLink.style.display = 'none';
+    }
+  }
+  refreshSetupUI();
+
+  saveTokenBtn.addEventListener('click', () => {
+    const t = tokenInput.value.trim();
+    if (!t) return;
+    localStorage.setItem('gh_token', t);
+    tokenInput.value = '';
+    refreshSetupUI();
+    showMsg('Token tersimpan. Sekarang kamu bisa langsung nulis curhatan.', 'ok');
+  });
+
+  editTokenLink.addEventListener('click', () => {
+    setupBox.classList.remove('hidden');
+    editTokenLink.style.display = 'none';
+  });
+
+  function showMsg(text, type){
+    msgBox.textContent = text;
+    msgBox.className = 'msg show ' + type;
+  }
+
+  function todayLabel(){
+    const d = new Date();
+    const bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    const jam = String(d.getHours()).padStart(2,'0');
+    const menit = String(d.getMinutes()).padStart(2,'0');
+    return { date: `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`, time: `${jam}:${menit}` };
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const token = getToken();
+    if (!token) {
+      showMsg('Simpan token GitHub kamu dulu di atas ya.', 'err');
+      setupBox.classList.remove('hidden');
+      return;
+    }
+
+    const title = document.getElementById('title').value.trim();
+    const body = document.getElementById('body').value.trim();
+    const tag = document.getElementById('tag').value;
+    if (!title || !body) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Menyimpan...';
+
+    try {
+      const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept': 'application/vnd.github+json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: title,
+          body: body,
+          labels: [tag]
+        })
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `Gagal (status ${res.status})`);
+      }
+
+      showMsg('Tersimpan! Curhatan kamu udah muncul di halaman Curcol.', 'ok');
+      form.reset();
+      document.getElementById('tag').value = 'hari-hari';
+    } catch (err) {
+      showMsg('Gagal menyimpan: ' + err.message + '. Cek lagi token kamu masih valid.', 'err');
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Simpan Curhatan';
+    }
+  });
+</script>
+</body>
+</html>

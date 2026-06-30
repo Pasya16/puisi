@@ -17,14 +17,6 @@
       --cream: #f0f4fa;
       --serif: 'Cormorant Garamond', Georgia, serif;
       --sans:  'Jost', system-ui, sans-serif;
-
-      /* pastel accent per-note — cycled via JS */
-      --c1: #f9c5d1; /* rose */
-      --c2: #b8d8f5; /* blue */
-      --c3: #c5e8c5; /* sage */
-      --c4: #f5ddb8; /* peach */
-      --c5: #d5c5f0; /* lavender */
-      --c6: #b8eae4; /* mint */
     }
 
     html, body { background: var(--cream); }
@@ -37,7 +29,6 @@
       min-height: 100vh;
     }
 
-    /* grain */
     body::after {
       content:''; position:fixed; inset:0;
       background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
@@ -45,7 +36,6 @@
       pointer-events:none; z-index:9000;
     }
 
-    /* ── CURSOR ── */
     #cur {
       position:fixed; width:6px; height:6px;
       background:var(--ink); border-radius:50%;
@@ -63,7 +53,6 @@
     body.hov #cur { width:10px; height:10px; }
     body.hov #cur-r { width:52px; height:52px; border-color:rgba(42,51,71,.15); }
 
-    /* ── NAV ── */
     nav {
       position:fixed; top:0; left:0; right:0; z-index:500;
       padding:20px 56px;
@@ -78,7 +67,7 @@
       color:var(--ink); text-decoration:none; letter-spacing:2px;
     }
 
-    .nav-links { display:flex; gap:40px; list-style:none; }
+    .nav-links { display:flex; gap:40px; list-style:none; align-items:center; }
 
     .nav-links a {
       font-size:.68em; letter-spacing:3px; text-transform:uppercase;
@@ -96,6 +85,13 @@
     .nav-links a:hover::after, .nav-links a.active::after { width:100%; }
     .nav-links a.active { color:var(--ink); }
 
+    .write-link {
+      background:var(--ink); color:var(--cream) !important;
+      padding:9px 18px; border-radius:20px;
+    }
+    .write-link::after { display:none; }
+    .write-link:hover { opacity:.85; color:var(--cream) !important; }
+
     .menu-btn {
       display:none; background:none;
       border:1px solid rgba(42,51,71,.15);
@@ -103,7 +99,6 @@
       font-size:.68em; letter-spacing:2px; text-transform:uppercase; cursor:none;
     }
 
-    /* ── PAGE HEADER ── */
     .page-header {
       padding:120px 56px 56px;
       border-bottom:1px solid rgba(42,51,71,.08);
@@ -142,20 +137,16 @@
       animation:up .7s ease .4s forwards;
     }
 
-    /* colour blobs top-right */
     .blob-row {
       position:absolute; top:40px; right:56px;
       display:flex; gap:8px; align-items:center;
       opacity:0; animation:up .5s ease .6s forwards;
     }
 
-    .blob {
-      width:12px; height:12px; border-radius:50%;
-    }
+    .blob { width:12px; height:12px; border-radius:50%; }
 
     @keyframes up { to { opacity:1; transform:translateY(0); } }
 
-    /* ── NOTES GRID ── */
     .notes-area {
       padding:56px 56px 100px;
       max-width:1200px; margin:0 auto;
@@ -167,7 +158,6 @@
       gap:20px;
     }
 
-    /* ── SINGLE NOTE CARD ── */
     .note-card {
       position:relative;
       background:#fff;
@@ -188,27 +178,20 @@
       box-shadow:0 12px 40px rgba(42,51,71,.1);
     }
 
-    /* left accent bar — coloured */
     .note-bar {
       position:absolute; left:0; top:0; bottom:0;
       width:4px;
     }
 
-    .note-inner {
-      padding:28px 24px 24px 32px;
-    }
+    .note-inner { padding:28px 24px 24px 32px; }
 
-    /* date chip top */
     .note-date {
       display:inline-flex; align-items:center; gap:7px;
       font-size:.6em; letter-spacing:2px; text-transform:uppercase;
       color:rgba(42,51,71,.35); margin-bottom:14px;
     }
 
-    .note-date-dot {
-      width:5px; height:5px; border-radius:50%;
-      opacity:.6;
-    }
+    .note-date-dot { width:5px; height:5px; border-radius:50%; opacity:.6; }
 
     .note-title {
       font-family:var(--serif);
@@ -223,9 +206,9 @@
       color:rgba(42,51,71,.5); line-height:1.8;
       display:-webkit-box; -webkit-line-clamp:3;
       -webkit-box-orient:vertical; overflow:hidden;
+      white-space:pre-line;
     }
 
-    /* bottom row */
     .note-foot {
       display:flex; align-items:center; justify-content:space-between;
       padding:14px 24px 20px 32px;
@@ -233,31 +216,26 @@
       margin-top:16px;
     }
 
-    .note-time {
-      font-size:.62em; letter-spacing:2px;
-      color:rgba(42,51,71,.28);
-    }
+    .note-time { font-size:.62em; letter-spacing:2px; color:rgba(42,51,71,.28); }
 
     .note-tag {
       font-size:.58em; letter-spacing:2px; text-transform:uppercase;
-      padding:4px 10px;
-      border-radius:20px;
-      color:rgba(42,51,71,.5);
+      padding:4px 10px; border-radius:20px; color:rgba(42,51,71,.5);
     }
 
-    /* ── EMPTY STATE ── */
-    .empty-state {
+    .empty-state, .loading-state, .error-state {
       grid-column:1/-1;
       text-align:center; padding:80px 20px;
       color:rgba(42,51,71,.3);
     }
 
-    .empty-state p {
+    .empty-state p, .loading-state p, .error-state p {
       font-family:var(--serif); font-style:italic;
       font-size:1.4em; font-weight:300;
     }
 
-    /* ── FOOTER ── */
+    .error-state a { color:#7b8fd4; font-style:normal; font-size:.6em; letter-spacing:1px; }
+
     footer {
       padding:32px 56px;
       border-top:1px solid rgba(42,51,71,.08);
@@ -271,7 +249,6 @@
     .footer-logo:hover { color:var(--ink); }
     .footer-copy { font-size:.62em; letter-spacing:2px; color:rgba(42,51,71,.2); }
 
-    /* ── MOBILE ── */
     @media (max-width:768px) {
       #cur, #cur-r { display:none; }
       body { cursor:auto; }
@@ -310,6 +287,7 @@
     <li><a href="tentang.html">Tentang</a></li>
     <li><a href="curcol.html" class="active">Curcol</a></li>
     <li><a href="pokemon.html">Pokédex</a></li>
+    <li><a href="tulis.html" class="write-link">+ Tulis</a></li>
   </ul>
 </nav>
 
@@ -324,7 +302,7 @@
 <!-- NOTES -->
 <div class="notes-area">
   <div class="notes-grid" id="notesGrid">
-    <!-- cards injected by JS -->
+    <div class="loading-state"><p>memuat catatan...</p></div>
   </div>
 </div>
 
@@ -334,52 +312,8 @@
 </footer>
 
 <script>
-  // ── DATA CATATAN ─────────────────────────────────────────────────────────
-  // Tambah / edit entri di sini. Format: { date, time, title, text, tag }
-  const notes = [
-    {
-      date: '12 Jan 2025',
-      time: '23:14',
-      title: '2020',
-      text: 'sudah hampir 5 tahun lebih aku masih terus memikirkanmu kenangan yang selalu terputar setiap mataku terpejam kenangan yang muncul saat nafas masih berhembus...',
-      tag: 'kenangan'
-    },
-    {
-      date: '19 Apr 2025',
-      time: '07:39',
-      title: 'Hari yang biasa aja',
-      text: 'Bangun pagi dan gak ada yang spesial. Tapi entah kenapa rasanya berat banget buat gerak. Mungkin karena kemarin tidurnya telat. Atau mungkin karena yang lain.',
-      tag: 'hari-hari'
-    },
-    {
-      date: '2 Feb 2025',
-      time: '14:02',
-      title: 'Hal yang ingin aku bilang',
-      text: 'Ada beberapa hal yang pengen banget aku sampaikan tapi setiap kali mau ngomong selalu urung. Entah takut salah, takut dikira lebay, atau takut bikin keadaan jadi aneh.',
-      tag: 'perasaan'
-    },
-    {
-      date: '15 Mar 2025',
-      time: '21:55',
-      title: 'Overthinking lagi',
-      text: 'Kok kayanya semua orang bisa move on dengan mudah ya. Aku yang kayak gini doang. Padahal udah lama. Udah lama banget malah.',
-      tag: 'malam'
-    },
-    {
-      date: '28 Mar 2025',
-      time: '09:18',
-      title: 'Lagu yang tiba-tiba nyangkut',
-      text: 'Denger satu lagu terus langsung inget semuanya. Aneh ya, musik itu kayak portal waktu. Tiba-tiba aja udah balik ke momen yang harusnya udah gak usah diinget.',
-      tag: 'random'
-    },
-    {
-      date: '5 Apr 2025',
-      time: '00:31',
-      title: 'Tidak apa-apa',
-      text: 'Kayanya perlu lebih sering nulis ini ke diri sendiri: tidak apa-apa. Gak semua hal harus langsung resolved. Kadang cukup dirasain aja dulu.',
-      tag: 'self-note'
-    },
-  ];
+  const REPO_OWNER = 'Pasya16';
+  const REPO_NAME  = 'puisi';
 
   // ── WARNA PASTEL ─────────────────────────────────────────────────────────
   const palette = [
@@ -391,7 +325,6 @@
     { bar:'#7dd4cc', chip:'rgba(125,212,204,.18)', dot:'#7dd4cc' },  // mint
   ];
 
-  // ── BUILD BLOB ROW ───────────────────────────────────────────────────────
   const blobRow = document.getElementById('blobRow');
   palette.forEach(p => {
     const b = document.createElement('div');
@@ -400,14 +333,30 @@
     blobRow.appendChild(b);
   });
 
-  // ── BUILD CARDS ──────────────────────────────────────────────────────────
   const grid = document.getElementById('notesGrid');
 
-  if (!notes.length) {
-    grid.innerHTML = `<div class="empty-state"><p>belum ada curhatan tersimpan di sini.</p></div>`;
-  } else {
-    notes.forEach((n, i) => {
+  function formatDate(iso) {
+    const d = new Date(iso);
+    const bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+    return `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}`;
+  }
+  function formatTime(iso) {
+    const d = new Date(iso);
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+  }
+
+  function renderNotes(issues) {
+    if (!issues.length) {
+      grid.innerHTML = `<div class="empty-state"><p>belum ada curhatan tersimpan di sini.</p></div>`;
+      return;
+    }
+
+    grid.innerHTML = '';
+    issues.forEach((issue, i) => {
       const c = palette[i % palette.length];
+      const tag = (issue.labels && issue.labels[0]) ? (issue.labels[0].name || issue.labels[0]) : 'catatan';
+      const text = (issue.body || '').trim();
+
       const card = document.createElement('div');
       card.className = 'note-card';
       card.style.animationDelay = (i * 0.07) + 's';
@@ -416,30 +365,54 @@
         <div class="note-inner">
           <div class="note-date">
             <span class="note-date-dot" style="background:${c.dot}"></span>
-            ${n.date}
+            ${formatDate(issue.created_at)}
           </div>
-          <div class="note-title">${n.title}</div>
-          <div class="note-excerpt">${n.text}</div>
+          <div class="note-title"></div>
+          <div class="note-excerpt"></div>
         </div>
         <div class="note-foot">
-          <span class="note-time">${n.time}</span>
-          <span class="note-tag" style="background:${c.chip}">${n.tag}</span>
+          <span class="note-time">${formatTime(issue.created_at)}</span>
+          <span class="note-tag" style="background:${c.chip}"></span>
         </div>
       `;
+      // set text content safely to avoid HTML injection from issue content
+      card.querySelector('.note-title').textContent = issue.title;
+      card.querySelector('.note-excerpt').textContent = text;
+      card.querySelector('.note-tag').textContent = tag;
+
       grid.appendChild(card);
     });
+
+    const io = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        e.target.classList.add('on');
+        io.unobserve(e.target);
+      });
+    }, { threshold: 0.08 });
+    document.querySelectorAll('.note-card').forEach(el => io.observe(el));
   }
 
-  // ── SCROLL REVEAL ────────────────────────────────────────────────────────
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (!e.isIntersecting) return;
-      e.target.classList.add('on');
-      io.unobserve(e.target);
-    });
-  }, { threshold: 0.08 });
+  async function loadNotes() {
+    try {
+      const res = await fetch(`https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/issues?state=open&per_page=100`, {
+        headers: { 'Accept': 'application/vnd.github+json' }
+      });
+      if (!res.ok) throw new Error('status ' + res.status);
+      const data = await res.json();
+      // filter out pull requests (issues API also returns PRs)
+      const issues = data.filter(i => !i.pull_request);
+      renderNotes(issues);
+    } catch (err) {
+      grid.innerHTML = `
+        <div class="error-state">
+          <p>gagal memuat catatan.</p>
+          <a href="javascript:location.reload()">coba lagi</a>
+        </div>`;
+    }
+  }
 
-  document.querySelectorAll('.note-card').forEach(el => io.observe(el));
+  loadNotes();
 
   // ── CURSOR ───────────────────────────────────────────────────────────────
   const cur = document.getElementById('cur'), curR = document.getElementById('cur-r');
@@ -451,9 +424,11 @@
   (function loop(){ rx+=(mx-rx)*.1; ry+=(my-ry)*.1;
     curR.style.left=rx+'px'; curR.style.top=ry+'px';
     requestAnimationFrame(loop); })();
-  document.querySelectorAll('a, .note-card').forEach(el => {
-    el.addEventListener('mouseenter', () => document.body.classList.add('hov'));
-    el.addEventListener('mouseleave', () => document.body.classList.remove('hov'));
+  document.body.addEventListener('mouseover', e => {
+    if (e.target.closest('a, .note-card')) document.body.classList.add('hov');
+  });
+  document.body.addEventListener('mouseout', e => {
+    if (e.target.closest('a, .note-card')) document.body.classList.remove('hov');
   });
 
   // ── NAV ──────────────────────────────────────────────────────────────────
